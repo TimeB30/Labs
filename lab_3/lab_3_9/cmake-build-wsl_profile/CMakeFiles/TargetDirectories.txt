@@ -1,0 +1,3 @@
+D:/mai/mat_prac_labs/lab_3/lab_3_9/cmake-build-wsl_profile/CMakeFiles/lab_3_9.dir
+D:/mai/mat_prac_labs/lab_3/lab_3_9/cmake-build-wsl_profile/CMakeFiles/edit_cache.dir
+D:/mai/mat_prac_labs/lab_3/lab_3_9/cmake-build-wsl_profile/CMakeFiles/rebuild_cache.dir

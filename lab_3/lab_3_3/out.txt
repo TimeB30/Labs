@@ -1,0 +1,4 @@
+123 Charles Manson 123.456000
+2 Ivan Ivanovv 0.200000
+1 Ivan Ivanovv 0.200000
+456 Ivan Ivanov 0.200000

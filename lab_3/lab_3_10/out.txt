@@ -1,0 +1,28 @@
+Expression:
+A (B (E (G, T, R (W, Z)), F (L, M)), C), P, S
+Tree:
+A
+	B
+		E
+			G
+			T
+			R
+				W
+				Z
+		F
+			L
+			M
+	C
+P
+S
+Expression:
+D (F, G, H (X, H), J), I
+Tree:
+D
+	F
+	G
+	H
+		X
+		H
+	J
+I

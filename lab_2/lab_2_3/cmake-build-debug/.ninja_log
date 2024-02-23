@@ -1,0 +1,20 @@
+# ninja log v5
+4	165	7232236740574763	CMakeFiles/lab_2_3.dir/functions.c.obj	9bbf25fd29fa6b79
+166	330	7232236742135063	lab_2_3.exe	b56caea65af528ec
+4	150	7232230604948292	CMakeFiles/lab_2_3.dir/main.c.obj	3b0bef44d83ba1d1
+4	160	7232236818823859	CMakeFiles/lab_2_3.dir/functions.c.obj	9bbf25fd29fa6b79
+161	338	7232236820532525	lab_2_3.exe	b56caea65af528ec
+3	160	7232237056927908	CMakeFiles/lab_2_3.dir/functions.c.obj	9bbf25fd29fa6b79
+160	378	7232237058726079	lab_2_3.exe	b56caea65af528ec
+4	170	7232244088797463	CMakeFiles/lab_2_3.dir/functions.c.obj	9bbf25fd29fa6b79
+171	363	7232244090650509	lab_2_3.exe	b56caea65af528ec
+6	159	7232244184008782	CMakeFiles/lab_2_3.dir/main.c.obj	3b0bef44d83ba1d1
+159	325	7232244185588309	lab_2_3.exe	b56caea65af528ec
+4	158	7232246148249208	CMakeFiles/lab_2_3.dir/functions.c.obj	9bbf25fd29fa6b79
+159	332	7232246149908282	lab_2_3.exe	b56caea65af528ec
+4	193	7232247363956194	CMakeFiles/lab_2_3.dir/functions.c.obj	9bbf25fd29fa6b79
+194	407	7232247366014209	lab_2_3.exe	b56caea65af528ec
+4	177	7232247738042957	CMakeFiles/lab_2_3.dir/functions.c.obj	9bbf25fd29fa6b79
+178	418	7232247740394847	lab_2_3.exe	b56caea65af528ec
+4	160	7232248477732619	CMakeFiles/lab_2_3.dir/functions.c.obj	9bbf25fd29fa6b79
+161	329	7232248479350156	lab_2_3.exe	b56caea65af528ec
