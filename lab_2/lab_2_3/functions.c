@@ -1,3 +1,4 @@
+
 #include "functions.h"
 
 int string_length(char** string)

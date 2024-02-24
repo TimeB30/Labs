@@ -1,3 +1,4 @@
+
 #include "functions.h"
 
 int check_flag(char** word)

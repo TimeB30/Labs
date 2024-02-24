@@ -1,3 +1,4 @@
+
 #include "tree.h"
 
 int insert(struct Node* node, char* word, int amount)

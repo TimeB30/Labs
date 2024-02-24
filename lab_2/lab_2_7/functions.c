@@ -1,3 +1,4 @@
+
 #include "functions.h"
 #define EQUATION ((value*7 - M_PI*4/3)/ sin(value))
 

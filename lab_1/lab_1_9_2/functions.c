@@ -1,3 +1,4 @@
+
 #include "functions.h"
 
 int compare(int* a, int* b)

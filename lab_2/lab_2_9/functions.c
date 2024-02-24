@@ -1,3 +1,5 @@
+
+
 #include "functions.h"
 #define ITERATIONS_MAX 50
 

@@ -1,3 +1,4 @@
+
 #include "functions.h"
 
 void skip_splits(FILE** file, int* c)

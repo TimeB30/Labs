@@ -1,3 +1,4 @@
+
 #include "functions.h"
 
 double old_approximate_power(double base, double exponent)

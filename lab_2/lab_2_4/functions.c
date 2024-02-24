@@ -1,3 +1,4 @@
+
 #include "functions.h"
 
 double binary_power(double base, unsigned long long exponent)

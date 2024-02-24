@@ -1,3 +1,4 @@
+
 #include "functions.h"
 
 int to_decimal(char** string, int length, int base, int* sign)

@@ -1,3 +1,4 @@
+
 #include "functions.h"
 
 double root_of_power(double x, int exponent, double eps)

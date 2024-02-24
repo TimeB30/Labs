@@ -1,4 +1,6 @@
+
 #include "functions.h"
+
 int is_prime(int number){
     if(number == 1){
         return 0;

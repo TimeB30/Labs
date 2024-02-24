@@ -19,11 +19,11 @@ int main(int argc, char** argv) {
     int given_number_length;
     given_number_length= strlen(argv[1]);
     char given_number_string[given_number_length];
-    int size = given_number_length*sizeof(char);
+
     flag = argv[2][1];
-    given_number = stoi(argv[1]);
+    given_number = atoi(argv[1]);
     given_number_string[given_number_length] = '\0';
-    snprintf(given_number_string,size,"%d",given_number);
+    itoa(given_number, given_number_string, 10);
     if(strcmp(given_number_string, argv[1]) != 0){
         printf("given number is over the limit of int.\n");
         return 0;

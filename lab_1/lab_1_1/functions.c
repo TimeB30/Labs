@@ -1,3 +1,4 @@
+
 #include "functions.h"
 
 int is_number(const char* string){

@@ -1,3 +1,4 @@
+
 #include "functions.h"
 
 int get_string(FILE* stream, char** string, int* length)

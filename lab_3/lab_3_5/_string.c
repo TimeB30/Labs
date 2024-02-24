@@ -1,6 +1,3 @@
-//
-// Created by cucurbita on 01.11.2023.
-//
 
 #include "_string.h"
 

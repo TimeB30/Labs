@@ -1,3 +1,4 @@
+
 #ifndef CLIONPROJECTS_FUNCTIONS_H
 #define CLIONPROJECTS_FUNCTIONS_H
 
@@ -6,7 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include <limits.h>
+
 int is_number(const char* string);
 int is_prime(int number);
 
