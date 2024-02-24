@@ -1,0 +1,1 @@
+/usr/bin/cc CMakeFiles/CLionProjects.dir/main.c.o -o CLionProjects  -Wl,-rpath,/home/timeb/Desktop/mat_prac_labs/lab_1/lab_1_1/cmake-build-debug libfunc.so 

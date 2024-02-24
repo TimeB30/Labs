@@ -5,7 +5,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <ctype.h>
-
+#include <limits.h>
 #include "tree.h"
 
 enum cmd_codes
