@@ -1,0 +1,4 @@
+/home/timeb/Desktop/Labs/lab_1/lab_1_1/build/CMakeFiles/CLionProjects.dir
+/home/timeb/Desktop/Labs/lab_1/lab_1_1/build/CMakeFiles/func.dir
+/home/timeb/Desktop/Labs/lab_1/lab_1_1/build/CMakeFiles/edit_cache.dir
+/home/timeb/Desktop/Labs/lab_1/lab_1_1/build/CMakeFiles/rebuild_cache.dir

@@ -22,8 +22,9 @@ int main(int argc, char** argv) {
 
     flag = argv[2][1];
     given_number = atoi(argv[1]);
+    int size = given_number_length*sizeof(char);
     given_number_string[given_number_length] = '\0';
-    itoa(given_number, given_number_string, 10);
+    snprintf(given_number_string,size,"%d",given_number);
     if(strcmp(given_number_string, argv[1]) != 0){
         printf("given number is over the limit of int.\n");
         return 0;

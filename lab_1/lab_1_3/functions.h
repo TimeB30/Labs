@@ -11,6 +11,7 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <math.h>
+#include <limits.h>
 
 double binary_power(double base, unsigned long long exponent);
 double root_of_power(double x, int exponent, double eps);

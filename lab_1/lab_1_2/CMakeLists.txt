@@ -1,8 +1,10 @@
-cmake_minimum_required(VERSION 3.26)
-project(lab_1_2 C)
 
+cmake_minimum_required(VERSION 3.22)
+project(CLionProjects C)
 set(CMAKE_C_STANDARD 11)
 
-add_executable(lab_1_2 main.c
-        functions.c
-        functions.h)
+add_executable(CLionProjects main.c)
+
+add_library(func SHARED functions.h functions.c)
+target_link_libraries(CLionProjects PRIVATE func)
+target_link_libraries(func m)

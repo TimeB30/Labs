@@ -7,6 +7,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 #include <math.h>
+#include <limits.h>
 
 double binary_power(double base, unsigned long long exponent);
 double old_approximate_power(double base, double exponent);
