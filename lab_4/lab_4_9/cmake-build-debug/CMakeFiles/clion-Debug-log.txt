@@ -1,0 +1,4 @@
+/bin/cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_MAKE_PROGRAM=/snap/clion/265/bin/ninja/linux/x64/ninja -G Ninja -S /home/timeb/Desktop/Labs/lab_4/lab_4_9 -B /home/timeb/Desktop/Labs/lab_4/lab_4_9/cmake-build-debug
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/timeb/Desktop/Labs/lab_4/lab_4_9/cmake-build-debug

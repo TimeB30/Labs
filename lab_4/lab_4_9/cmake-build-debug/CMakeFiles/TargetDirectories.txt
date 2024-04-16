@@ -1,0 +1,4 @@
+/home/timeb/Desktop/Labs/lab_4/lab_4_9/cmake-build-debug/CMakeFiles/lab4_9.dir
+/home/timeb/Desktop/Labs/lab_4/lab_4_9/cmake-build-debug/CMakeFiles/func.dir
+/home/timeb/Desktop/Labs/lab_4/lab_4_9/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/timeb/Desktop/Labs/lab_4/lab_4_9/cmake-build-debug/CMakeFiles/rebuild_cache.dir
