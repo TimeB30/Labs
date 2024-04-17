@@ -72,10 +72,9 @@ int main(){
     printf("----------------------------------------------------------------------------------\n");
     printf("Leftist heap\n");
     FILE* file_left = fopen("left_test.txt", "r");
-    char a[10];
     leftist_heap * leftist_heap = create_leftist_heap();
-     while (fscanf(file_left,"%s",a) != EOF){
-        number = strtol(a, &end, 10);
+     while (fscanf(file_left,"%s",letter) != EOF){
+        number = strtol(letter, &end, 10);
         date_time = rand() % 100;
         add_elem_to_leftist_heap(number, date_time, "test_left", leftist_heap);
 
@@ -92,16 +91,30 @@ int main(){
     printf("Skewheap heap\n");
     FILE* file_skew = fopen("skew_test.txt", "r");
     skew_heap* skew_heap = create_skew_heap();
-    while (fscanf(file_skew,"%s",a) != EOF){
-        number = strtol(a, &end, 10);
+    while (fscanf(file_skew,"%s",letter) != EOF){
+        number = strtol(letter, &end, 10);
         date_time = rand() % 100;
         add_elem_to_skew_heap(number, date_time, "test_left", skew_heap);
 
     }
+    delete_skew_heap(&skew_heap);
+
     printf("----------------------------------------------------------------------------------\n");
     printf("Treap heap\n");
+    treap_heap* treap_heap = create_treap_heap();
     FILE* file_treap = fopen("treap_test.txt","r");
-    delete_skew_heap(&skew_heap);
+    while (fscanf(file_treap,"%s",letter) != EOF){
+        number = strtol(letter, &end, 10);
+        date_time = rand() % 100;
+        add_elem_to_treap_heap(number,date_time,"test_trip",treap_heap);
+    }
+    delete_treap_heap(treap_heap);
+
+
+
+
+
+
     return 0;
 }
 

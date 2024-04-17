@@ -98,6 +98,16 @@ typedef struct{
      skew_node* root;
 }skew_heap;
 
+typedef struct tr_node{
+    unsigned int priority;  // key insert(key) split(key)
+    time_t date_time;
+    char* application_text;
+    struct tr_node* left;
+    struct tr_node* right;
+}treap_node;
+typedef struct{
+    treap_node* root;
+}treap_heap;
 
 binomial_heap* create_binomial_heap();
 void add_elem_to_binomial_heap(binomial_heap* binom_heap,unsigned int priority,time_t date_time,char* application_text);
@@ -143,3 +153,10 @@ void delete_leftist_heap(leftist_heap** heap);
 skew_heap* create_skew_heap();
 void add_elem_to_skew_heap(unsigned int priority,time_t date_time,char* application_text,skew_heap* heap);
 void delete_skew_heap(skew_heap** heap);
+
+
+treap_heap* create_treap_heap();
+treap_node* merge_treap_heap(treap_node* node1, treap_node* node2);   // any node1 date_time should be less than any node2 date_time
+void take_out_treap_max(treap_heap* heap); //splitting should be done with date_time comparison
+void add_elem_to_treap_heap(unsigned int priority, time_t date_time, char* application_text, treap_heap* heap);
+void delete_treap_heap(treap_heap* heap);

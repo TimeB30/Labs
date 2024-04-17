@@ -992,3 +992,90 @@ void delete_skew_heap(skew_heap** heap){
     free(*heap);
 }
 
+
+
+
+
+treap_heap* create_treap_heap(){
+    treap_heap* heap = (treap_heap*)malloc(sizeof(treap_heap));
+    if (heap == NULL){
+        memory_error();
+    }
+    heap->root = NULL;
+    return heap;
+}
+
+void split_treap_heap(treap_node* root,time_t date_time_key,treap_node** node1,treap_node** node2){
+        if (root == NULL){
+            *node1 = NULL;
+            *node2 = NULL;
+            return;
+        }
+        if (root->date_time < date_time_key){
+            split_treap_heap(root->right,date_time_key,&(root->right),node2);
+            *node1 = root;
+        }
+        else{
+            split_treap_heap(root->left,date_time_key,node1,&(root->left));
+            *node2 = root;
+        }
+}
+treap_node* merge_treap_heap(treap_node* node1, treap_node* node2){
+    if (node1  == NULL){
+        return node2;
+    }
+    else if (node2 == NULL){
+        return node1;
+    }
+    if (node1->priority > node2->priority){
+        node1->right = merge_treap_heap(node1->right,node2);
+        return node1;
+    }
+    else if (node1->priority == node2->priority){
+        if (node1->date_time <= node2->date_time){
+            node1->right = merge_treap_heap(node1->right,node2);
+            return node1;
+        }
+    }
+    else{
+        node2->left = merge_treap_heap(node1,node2->left);
+        return  node2;
+    }
+}
+void add_elem_to_treap_heap(unsigned int priority, time_t date_time, char* application_text, treap_heap* heap){
+    treap_node* node = (treap_node*)malloc(sizeof(treap_node));
+    if (node == NULL){
+        memory_error();
+    }
+    node->application_text = (char*)malloc(sizeof(char)*(strlen(application_text)+1));
+    strcpy(node->application_text,application_text);
+    node->priority = priority;
+    node->date_time = date_time;
+    node->right = NULL;
+    node->left = NULL;
+    if (heap->root == NULL){
+        heap->root = node;
+        return;
+    }
+    treap_node* root1 = NULL;
+    treap_node* root2 = NULL;
+    split_treap_heap(heap->root,date_time,&root1,&root2);
+    root1 = merge_treap_heap(root1,node);
+    heap->root = merge_treap_heap(root1,root2);
+}
+
+void take_out_treap_max(treap_heap* heap){
+    treap_node* node_to_delete = heap->root;
+    heap->root = merge_treap_heap(heap->root->left,heap->root->right);
+    free(node_to_delete->application_text);
+    node_to_delete->application_text = NULL;
+    free(node_to_delete);
+    node_to_delete = NULL;
+}
+void delete_treap_heap(treap_heap* heap){
+    while(heap->root != NULL){
+        printf("%u  %u\n",heap->root->priority, heap->root->date_time);
+        take_out_treap_max(heap);
+    }
+    free(heap);
+}
