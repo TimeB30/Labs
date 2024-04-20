@@ -1226,6 +1226,9 @@ departments* create_departments(departments_option* dep_ops){
         dep->operators_quantity[hash(department_number,dep_ops->departments_quantity)] = dep_ops->operators_quantity[i];
         dep->departments_overload_coefficient[i] = 0;
     }
+    for (int i = 0; i < dep_ops->departments_quantity; i++){
+        dep->struct_context->insert(dep->departments_number[i],dep->heap_context->create_heap(),&dep->struct_context->strct);
+    }
     return dep;
 }
 //void create_application(application* apl,struct tm* tm_struct,FILE* file) {
@@ -1249,7 +1252,7 @@ void write_application_text(FILE* file, char** text,int* size) {
             }
             *text = tmp;
         }
-        *text[i] = letter;
+        (*text)[i] = letter;
         i++;
     }
     (*text)[i] = '\n';
