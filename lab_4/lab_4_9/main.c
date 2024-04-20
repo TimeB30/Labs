@@ -84,5 +84,6 @@ int main(int argc, char** argv) {
     departments* dep = create_departments(deps_option);
     add_applications_to_departments(dep,argv,argc);
 
-
+//print ((hash_table_node*)((hash_table*)(dep->struct_context->strct))->array)[2]
+//    print ((binary_heap*)(((hash_table_node*)(((hash_table*)(dep->struct_context->strct))->array))[2].ptr))->heap->application_text
 }
