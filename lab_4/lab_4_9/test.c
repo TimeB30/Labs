@@ -1,13 +1,10 @@
 #include"func.h"
 //  cmake -DCMAKE_BUILD_TYPE=Debug ..
-void print_node(binomial_node* binom_node){
-    while(binom_node != NULL){
-        printf("%u",binom_node->priority);
-        binom_node = binom_node->next;
+void print_b_heap(binary_heap* heap){
+    for(int i = 0; i <= heap->current_size; i++){
+        printf("%u %u\n",heap->heap[i].priority,heap->heap[i].date_time);
     }
-    printf("\n");
 }
-
 int main(){
     unsigned int number = 0;
     int size = 10;
@@ -15,7 +12,7 @@ int main(){
     time_t date_time;
     printf("----------------------------------------------------------------------------------\n");
     printf("binary heap\n");
-    binary_heap* binary_heap1 = create_binary_heap(size);
+    binary_heap* binary_heap1 = create_binary_heap();
     FILE* binary_heap_file = fopen("binary_test.txt","r");
     if (binary_heap_file == NULL){
         printf("file not found\n");
@@ -52,10 +49,9 @@ int main(){
      while ((fscanf(binomial_heap_file,"%s",letter)) != EOF){
          number = strtoul(letter,&end,10);
          date_time = rand()%100;
-        add_elem_to_binomial_heap(binomial_heap,number,date_time,"test");
+        add_elem_to_binomial_heap(number,date_time,"test",binomial_heap);
 
     }
-    remove_elem_from_binomial_heap(binomial_heap,binomial_heap->last_node);
     delete_binomial_heap(binomial_heap);
     binomial_heap = NULL;
     printf("----------------------------------------------------------------------------------\n");
@@ -108,10 +104,13 @@ int main(){
         date_time = rand() % 100;
         add_elem_to_treap_heap(number,date_time,"test_trip",treap_heap);
     }
-    delete_treap_heap(treap_heap);
+//    delete_treap_heap(treap_heap);
 
-
-
+    printf("----------------------------------------------------------------------------------\n");
+    printf(" hash table with treap heap\n");
+    hash_table* table = create_hash_table();
+    insert_into_hash_table_interface(122,treap_heap,table);
+    delete_treap_heap(table->array[22].ptr);
 
 
 

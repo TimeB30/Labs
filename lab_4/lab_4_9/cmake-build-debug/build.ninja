@@ -49,8 +49,8 @@ cmake_ninja_workdir = /home/timeb/Desktop/Labs/lab_4/lab_4_9/cmake-build-debug/
 
 build cmake_object_order_depends_target_lab4_9: phony || cmake_object_order_depends_target_func
 
-build CMakeFiles/lab4_9.dir/test.c.o: C_COMPILER__lab4_9_Debug /home/timeb/Desktop/Labs/lab_4/lab_4_9/test.c || cmake_object_order_depends_target_lab4_9
-  DEP_FILE = CMakeFiles/lab4_9.dir/test.c.o.d
+build CMakeFiles/lab4_9.dir/main.c.o: C_COMPILER__lab4_9_Debug /home/timeb/Desktop/Labs/lab_4/lab_4_9/main.c || cmake_object_order_depends_target_lab4_9
+  DEP_FILE = CMakeFiles/lab4_9.dir/main.c.o.d
   FLAGS = -g -std=gnu11
   OBJECT_DIR = CMakeFiles/lab4_9.dir
   OBJECT_FILE_DIR = CMakeFiles/lab4_9.dir
@@ -63,7 +63,7 @@ build CMakeFiles/lab4_9.dir/test.c.o: C_COMPILER__lab4_9_Debug /home/timeb/Deskt
 #############################################
 # Link the executable lab4_9
 
-build lab4_9: C_EXECUTABLE_LINKER__lab4_9_Debug CMakeFiles/lab4_9.dir/test.c.o | libfunc.so || libfunc.so
+build lab4_9: C_EXECUTABLE_LINKER__lab4_9_Debug CMakeFiles/lab4_9.dir/main.c.o | libfunc.so || libfunc.so
   FLAGS = -g
   LINK_LIBRARIES = -Wl,-rpath,/home/timeb/Desktop/Labs/lab_4/lab_4_9/cmake-build-debug  libfunc.so
   OBJECT_DIR = CMakeFiles/lab4_9.dir
