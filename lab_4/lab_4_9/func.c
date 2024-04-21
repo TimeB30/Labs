@@ -145,7 +145,7 @@ void siftDown(binary_heap* b_heap,int index){
     b_heap->heap[index] = buff;
     siftDown(b_heap,node_to_switch);
 }
-void add_elem_to_binary_heap(unsigned int priority,time_t date_time,char* application_text,binary_heap* b_heap){
+void add_elem_to_binary_heap(unsigned int priority,time_t date_time,unsigned int dep_num, unsigned int appln_id,char* application_text,binary_heap* b_heap){
     binary_heap_node * buff = NULL;
     b_heap->current_size++;
     if (b_heap->current_size == b_heap->size){
@@ -159,7 +159,8 @@ void add_elem_to_binary_heap(unsigned int priority,time_t date_time,char* applic
     if (b_heap->current_size == 10){
         printf("blya\n");
     }
-
+    b_heap->heap[b_heap->current_size].dep_number = dep_num;
+    b_heap->heap[b_heap->current_size].application_id = appln_id;
     b_heap->heap[b_heap->current_size].priority = priority;
     b_heap->heap[b_heap->current_size].date_time = date_time;
     b_heap->heap[b_heap->current_size].application_text = (char*)malloc(sizeof(char)*(strlen(application_text)+1));
@@ -170,8 +171,8 @@ void add_elem_to_binary_heap(unsigned int priority,time_t date_time,char* applic
     siftUp(b_heap,b_heap->current_size);
 
 }
-void add_elem_to_binary_heap_interface(unsigned int priority, time_t date_time, char* application_text, void* b_heap){
-    add_elem_to_binary_heap(priority,date_time,application_text,(binary_heap*)b_heap);
+void add_elem_to_binary_heap_interface(unsigned int priority, time_t date_time,unsigned int dep_num, unsigned int appln_id, char* application_text, void* b_heap){
+    add_elem_to_binary_heap(priority,date_time,appln_id,appln_id,application_text,(binary_heap*)b_heap);
 }
 binary_heap* create_binary_heap(){
     binary_heap* b_heap = (binary_heap*)malloc(sizeof(binary_heap));
@@ -197,7 +198,7 @@ void merge_binary_heaps(binary_heap* heap1, binary_heap* heap2){
     }
     int i = 0;
     while(i <= heap2->current_size){
-        add_elem_to_binary_heap(heap2->heap[i].priority,heap2->heap[i].date_time,heap2->heap[i].application_text,heap1);
+        add_elem_to_binary_heap(heap2->heap[i].priority,heap2->heap[i].date_time,heap2->heap[i].dep_number,heap2->heap[i].application_id,heap2->heap[i].application_text,heap1);
         i++;
     }
 }
@@ -212,6 +213,12 @@ void delete_binary_heap(binary_heap** heap){
     (*heap)->heap = NULL;
     free(*heap);
     (*heap) = NULL;
+}
+void* get_binary_max(binary_heap* heap){
+    return heap->heap;
+}
+unsigned int get_application_id_binary_node(binary_heap_node* node){
+    return node->application_id;
 }
 void remove_binary_max(binary_heap* b_heap){
     if (b_heap->current_size == -1){
@@ -232,9 +239,9 @@ void parse_time(FILE* file, struct tm* tm_struct){
     fscanf(file,"%d-%d-%d %d:%d:%d",&(tm_struct->tm_year),&(tm_struct->tm_mon),&(tm_struct->tm_mday),&(tm_struct->tm_hour),&(tm_struct->tm_min),&(tm_struct->tm_sec));
     tm_struct->tm_year -= 1900;
     tm_struct->tm_mon -= 1;
-    tm_struct->tm_hour -= 1;
-    tm_struct->tm_min -=  1;
-    tm_struct->tm_sec -= 1;
+//    tm_struct->tm_hour -= 1;
+//    tm_struct->tm_min -=  1;
+//    tm_struct->tm_sec -= 1;
     tm_struct->tm_gmtoff = 0;
     tm_struct->tm_wday = 0;
     tm_struct->tm_yday = 0;
@@ -377,7 +384,7 @@ void check_ranks_and_merge(binomial_heap* binom_heap){
 
 }
 
-void add_elem_to_binomial_heap(unsigned int priority,time_t date_time,char* application_text,binomial_heap* binom_heap) {
+void add_elem_to_binomial_heap(unsigned int priority,time_t date_time, unsigned int dep_num, unsigned int appln_id, char* application_text,binomial_heap* binom_heap) {
     binomial_node* node = (binomial_node*)malloc(sizeof(binomial_node));
     if (node == NULL) {
         memory_error();
@@ -388,6 +395,8 @@ void add_elem_to_binomial_heap(unsigned int priority,time_t date_time,char* appl
     node->rank = 0;
     node->sons = NULL;
     node->date_time = date_time;
+    node->dep_number = dep_num;
+    node->application_id = appln_id;
     node->application_text = (char*)malloc(sizeof(char)*(strlen(application_text)+1));
     if (node->application_text == NULL){
         return memory_error();
@@ -418,8 +427,8 @@ void add_elem_to_binomial_heap(unsigned int priority,time_t date_time,char* appl
 
 
 }
-void add_elem_to_binomial_heap_interface(unsigned int priority,time_t date_time,char* application_text,void* binom_heap){
-    add_elem_to_binomial_heap(priority,date_time,application_text,(binomial_heap*)binom_heap);
+void add_elem_to_binomial_heap_interface(unsigned int priority,time_t date_time,unsigned int dep_num, unsigned int appln_id, char* application_text,void* binom_heap){
+    add_elem_to_binomial_heap(priority,date_time,dep_num,appln_id,application_text,(binomial_heap*)binom_heap);
 }
 void merge_binomial_heaps_inside(binomial_heap* binom_heap, binomial_node* node2){
     if (binom_heap->last_node == NULL){
@@ -580,7 +589,7 @@ fibonacci_heap* create_fibonacci_heap() {
 
 
 
-void add_elem_to_fibonacci_heap_strct(unsigned int priority, time_t date_time, char* application_text,unsigned int department_number, fibonacci_heap* heap){
+void add_elem_to_fibonacci_heap(unsigned int priority, time_t date_time, unsigned int dep_num, unsigned int appln_id ,char* application_text, fibonacci_heap* heap){
     fibonacci_node* node = (fibonacci_node*)malloc(sizeof(fibonacci_node));
     if (node == NULL){
         memory_error();
@@ -594,8 +603,10 @@ void add_elem_to_fibonacci_heap_strct(unsigned int priority, time_t date_time, c
     node->date_time = date_time;
     node->sons = NULL;
     node->next = NULL;
-    node->dep_number = department_number;
+    node->dep_number = dep_num;
     node->rank = 0;
+    node->dep_number = dep_num;
+    node->application_id = appln_id;
     if (heap->last_node == NULL){
         node->previous = NULL;
         heap->last_node = node;
@@ -615,10 +626,10 @@ void add_elem_to_fibonacci_heap_strct(unsigned int priority, time_t date_time, c
     heap->last_node = node;
 }
 
-
-void add_elem_to_fibonacci_heap(unsigned int priority, time_t date_time, char* application_text, fibonacci_heap* heap){
-    add_elem_to_fibonacci_heap_strct(priority,date_time,application_text,0,heap);
-}
+//
+//void add_elem_to_fibonacci_heap(unsigned int priority, time_t date_time,unsigned int dep_num, unsigned int appln_id, char* application_text, fibonacci_heap* heap){
+//    add_elem_to_fibonacci_heap_strct(priority,date_time,application_text,0,heap);
+//}
 
 
 
@@ -855,7 +866,7 @@ leftist_node* merge_leftist_heaps_inside(leftist_node** node1, leftist_node** no
 void merge_leftist_heaps(leftist_heap* heap1, leftist_heap* heap2){
     heap1->root = merge_leftist_heaps_inside((&heap1->root),(&heap2->root));
 }
-void add_elem_to_leftist_heap(unsigned int priority, time_t date_time,char* application_text,leftist_heap* heap){
+void add_elem_to_leftist_heap(unsigned int priority, time_t date_time,unsigned int dep_num, unsigned int appln_id ,char* application_text,leftist_heap* heap){
     leftist_node* node = (leftist_node*)malloc(sizeof(leftist_node));
     if ((node == NULL)){
         memory_error();
@@ -868,6 +879,8 @@ void add_elem_to_leftist_heap(unsigned int priority, time_t date_time,char* appl
     node->date_time = date_time;
     node->left = NULL; //heap->end;
     node->right = NULL; //heap->end;
+    node->dep_number = dep_num;
+    node->application_id = appln_id;
     node->npl = 0;
     strcpy(node->application_text,application_text);
     if (heap->root == NULL){
@@ -943,7 +956,7 @@ void merge_skew_heaps_inside(skew_node** node1, skew_node** node2){
 void merge_skew_heaps(skew_heap* heap1, skew_heap* heap2){
     merge_skew_heaps_inside(&heap1->root,&heap2->root);
 }
-void add_elem_to_skew_heap(unsigned int priority,time_t date_time,char* application_text,skew_heap* heap){
+void add_elem_to_skew_heap(unsigned int priority,time_t date_time,unsigned int dep_num, unsigned int appln_id,char* application_text,skew_heap* heap){
     skew_node* node = (skew_node*)malloc(sizeof(skew_node));
     if (node == NULL){
         memory_error();
@@ -952,6 +965,8 @@ void add_elem_to_skew_heap(unsigned int priority,time_t date_time,char* applicat
     node->left = NULL;
     node->priority = priority;
     node->date_time = date_time;
+    node->dep_number = dep_num;
+    node->application_id = appln_id;
     node->application_text = (char*)malloc(sizeof(char)*(strlen(application_text)+1));
     if (node->application_text == NULL){
         memory_error();
@@ -1037,7 +1052,7 @@ treap_node* merge_treap_heap_inside(treap_node* node1, treap_node* node2){
 void merge_treap_heaps(treap_heap* heap1, treap_heap* heap2){
     merge_treap_heap_inside(heap1->root,heap2->root);
 }
-void add_elem_to_treap_heap(unsigned int priority, time_t date_time, char* application_text, treap_heap* heap){
+void add_elem_to_treap_heap(unsigned int priority, time_t date_time,unsigned int dep_num, unsigned int appln_id ,char* application_text, treap_heap* heap){
     treap_node* node = (treap_node*)malloc(sizeof(treap_node));
     if (node == NULL){
         memory_error();
@@ -1048,6 +1063,8 @@ void add_elem_to_treap_heap(unsigned int priority, time_t date_time, char* appli
     node->date_time = date_time;
     node->right = NULL;
     node->left = NULL;
+    node->dep_number = dep_num;
+    node->application_id = appln_id;
     if (heap->root == NULL){
         heap->root = node;
         return;
@@ -1081,7 +1098,7 @@ hash_table* create_hash_table() {
     if (table == NULL){
         memory_error();
     }
-    table->size = 100;
+    table->size = 25;
     table->current_size = 0;
     table->array = (hash_table_node*)malloc(sizeof(hash_table_node)*table->size);
     table->dep_quantity = 0;
@@ -1092,6 +1109,8 @@ hash_table* create_hash_table() {
     for (int i = 0; i < table->size; i++){
         table->array[i].next = NULL;
         table->array[i].ptr = NULL;
+        table->array[i].applications_count = 0;
+        table->array[i].department_capacity = 0;
     }
     return table;
 }
@@ -1099,11 +1118,11 @@ unsigned int hash(unsigned int key,unsigned int dep_quantity){
     return key%dep_quantity;
 }
 
-void insert_into_hash_table(unsigned int key, void* ptr,hash_table** table){
+void insert_into_hash_table(unsigned int key, unsigned int capacity, void* ptr,hash_table** table){
     unsigned int index = hash(key,(*table)->dep_quantity);
     hash_table* tmp_table = NULL;
     if (index >= (*table)->size){
-        (*table)->size *= 2;
+        (*table)->size += 25;
         tmp_table = (hash_table*)realloc(table,sizeof(hash_table)*(*table)->size);
         if (tmp_table == NULL){
             memory_error();
@@ -1114,6 +1133,7 @@ void insert_into_hash_table(unsigned int key, void* ptr,hash_table** table){
     if ((*table)->array[index].ptr == NULL){
         (*table)->array[index].ptr = ptr;
         (*table)->array[index].department_number = key;
+        (*table)->array[index].department_capacity = capacity;
     }
     else{
         tmp = &(*table)->array[index];
@@ -1130,8 +1150,8 @@ void insert_into_hash_table(unsigned int key, void* ptr,hash_table** table){
         tmp->ptr = ptr;
     }
 }
-void insert_into_hash_table_interface(unsigned int key,void* ptr,void** table){
-    insert_into_hash_table(key,ptr,(hash_table**)table);
+void insert_into_hash_table_interface(unsigned int key,unsigned int capacity,void* ptr,void** table){
+    insert_into_hash_table(key,capacity,ptr,(hash_table**)table);
 }
 void* get_from_hash_table(unsigned int key,hash_table* table) {
     if (table == NULL) {
@@ -1144,7 +1164,7 @@ void* get_from_hash_table(unsigned int key,hash_table* table) {
     hash_table_node* tmp = &table->array[i];
     while(tmp != NULL) {
         if (tmp->department_number == key) {
-            return tmp->ptr;
+            return tmp;
         } else {
             tmp = tmp->next;
         }
@@ -1153,6 +1173,21 @@ void* get_from_hash_table(unsigned int key,hash_table* table) {
 }
 void* get_from_hash_table_interface(unsigned int key,void* table){
     return get_from_hash_table(key,(hash_table*)table);
+}
+void* get_heap_from_hash_table_node(hash_table_node* node){
+    return node->ptr;
+}
+void* get_heap_from_hash_table_node_interface(void* node){
+    return get_heap_from_hash_table_node((hash_table_node*)node);
+}
+int check_overload_status_hash_node(hash_table_node* node){
+    if (node->applications_count+1 == node->department_capacity){
+        return 0;
+    }
+    return 1;
+}
+int check_overload_status_hash_node_interface(void* node){
+    return check_overload_status_hash_node((hash_table_node*)node);
 }
 void delete_hash_table(hash_table* table){
     if (table == NULL) {
@@ -1173,28 +1208,34 @@ void delete_hash_table(hash_table* table){
     }
 }
 
-
+//unsigned int get_acceptable_number_hash_node(hash_table_node* node){
+//    return node->acceptable_quantity_applications;
+//}
+//unsigned int get_acceptable_number_hash_node_interface(void* node){
+//    return get_acceptable_number_hash_node((hash_table_node*)node);
+//}
 
 departments* create_departments(departments_option* dep_ops){
     departments* dep = (departments*)malloc(sizeof(departments));
+    unsigned int acceptable_number;
     if (dep == NULL){
         memory_error();
     }
     dep->time_we_have = dep_ops->end_date_time - dep_ops->start_date_time;
-    dep->current_time = 0;
+    dep->current_time = dep_ops->start_date_time;
     dep->options = dep_ops;
     dep->heap_context = (heap_context*)malloc(sizeof(heap_context));
     dep->struct_context = (struct_to_save_heaps_context*)malloc(sizeof(struct_to_save_heaps_context));
     dep->operators_quantity = (unsigned int*)malloc(sizeof(unsigned int)*dep_ops->departments_quantity);
     dep->departments_number = (unsigned int*)malloc(sizeof(unsigned int)*dep_ops->departments_quantity);
-    dep->departments_overload_coefficient = (double*)malloc(sizeof(double)*dep_ops->departments_quantity);
+    dep->departments_capacity = (unsigned int*)malloc(sizeof(unsigned int)*dep_ops->departments_quantity);
     dep->all_applications = create_fibonacci_heap();
-    if ((dep->heap_context == NULL) || (dep->all_applications == NULL) ||(dep->struct_context == NULL) || (dep->operators_quantity == NULL) || (dep->departments_number == NULL) || (dep->departments_overload_coefficient == NULL)){
+    if ((dep->heap_context == NULL) || (dep->all_applications == NULL) ||(dep->struct_context == NULL) || (dep->operators_quantity == NULL) || (dep->departments_number == NULL) || (dep->departments_capacity == NULL)){
         memory_error();
     }
     dep->struct_context->strct = NULL;
     dep->struct_context->insert = NULL;
-    dep->struct_context->find = NULL;
+    dep->struct_context->get_struct_node = NULL;
     dep->heap_context->create_heap = NULL;
     dep->heap_context->add_elem_to_heap = NULL;
 //    dep->structure_for_heaps; // сделать для хеша и тд
@@ -1209,7 +1250,9 @@ departments* create_departments(departments_option* dep_ops){
             dep->struct_context->strct = create_hash_table();
             ((hash_table*)(dep->struct_context->strct))->dep_quantity = dep_ops->departments_quantity;
             dep->struct_context->insert = insert_into_hash_table_interface;
-            dep->struct_context->find = get_from_hash_table_interface;
+            dep->struct_context->get_struct_node = get_from_hash_table_interface;
+            dep->struct_context->check_overload = check_overload_status_hash_node_interface;
+            dep->struct_context->get_heap = get_heap_from_hash_table_node_interface;
             break;
         case DynamicArray:
             break;
@@ -1219,20 +1262,23 @@ departments* create_departments(departments_option* dep_ops){
             break;
     }
 //    unsigned int department_number = rand();
+    unsigned int hash_num = 0;
     unsigned int department_number = 1;
+    unsigned int max_capacity = 0;
     for (int i = 0; i < dep_ops->departments_quantity; i++){
         department_number++;
         dep->departments_number[i] = department_number;
-        dep->operators_quantity[hash(department_number,dep_ops->departments_quantity)] = dep_ops->operators_quantity[i];
-        dep->departments_overload_coefficient[i] = 0;
-    }
-    for (int i = 0; i < dep_ops->departments_quantity; i++){
-        dep->struct_context->insert(dep->departments_number[i],dep->heap_context->create_heap(),&dep->struct_context->strct);
+        hash_num = hash(department_number,dep_ops->departments_quantity);
+        dep->operators_quantity[hash_num] = dep_ops->operators_quantity[i];
+        max_capacity = dep->options->operators_quantity[i] * dep->options->overload_coefficient;
+        dep->struct_context->insert(department_number,max_capacity,dep->heap_context->create_heap(),&(dep->struct_context->strct));
+//        dep->departments_capacity[hash_num] = dep_ops->overload_coefficient * dep->operators_quantity[hash_num];
+        //TODO рассчитать количество разрешенных сообщений в зависимости от кол-во операторов
     }
     return dep;
 }
 //void create_application(application* apl,struct tm* tm_struct,FILE* file) {
-//    char* inf = (char*)malloc(sizeof(char)*20);
+//    char* inf = (char*)malloc(sizeof(char)*20);create_bina
 //    parse_time(file,tm_struct);
 //    time_t date_time = mktime(tm_struct);
 //    apl->date_time = date_time;
@@ -1262,26 +1308,46 @@ void add_applications_to_departments(departments* dep,char** file_with_applicati
     unsigned int priority = 0;
     unsigned int department_number = 0;
     int size = 10;
+    struct tm* time_info;
+    char date_time[21];
     char *application_text = (char *) malloc(sizeof(char) * size);
     FILE *file;
     struct tm *tm_struct = (struct tm *) malloc(sizeof(struct tm));
+    FILE* log_file = fopen("log_file.txt","w");
     if ((tm_struct == NULL) || (application_text == NULL)) {
         memory_error();
     }
+    unsigned int application_id_count = 0;
+    void* struct_node = NULL;
     int i = 3;
     while (i < file_count) {
         file = fopen(file_with_applications[i], "r");
         while (1) {
+            application_id_count++;
             parse_time(file, tm_struct);
             apl_date_time = mktime(tm_struct);
             if ((apl_date_time >= dep->options->start_date_time) && (apl_date_time <= dep->options->end_date_time)) {
                 fscanf(file, "%u", &priority);
                 if (priority < dep->options->max_priority) {
                     fscanf(file, "%u", &department_number);
-                    if (dep->struct_context->find(department_number, dep->struct_context->strct) != NULL) {
-                        write_application_text(file, &application_text, &size);
-                        add_elem_to_fibonacci_heap_strct(priority, apl_date_time, application_text, department_number,
-                                                         dep->all_applications);
+                    if ((struct_node = dep->struct_context->get_struct_node(department_number, dep->struct_context->strct)) != NULL) {
+                        time_info = localtime(&dep->current_time);
+                        strftime(date_time,sizeof(date_time),"%Y-%m-%d %H:%M:%S",time_info);
+                        if (!dep->struct_context->check_overload(struct_node)){
+                            write_application_text(file, &application_text, &size);
+                            fprintf(log_file,"%s NEW_REQUEST application №%u was received by department №%u",date_time,application_id_count,department_number);
+                            dep->heap_context->add_elem_to_heap(priority,apl_date_time,department_number,application_id_count,application_text,dep->struct_context->get_heap(struct_node));
+                        }
+                        else{
+                            for (int t = 0; t < dep->options->departments_quantity;t++){
+                                struct_node = dep->struct_context->get_struct_node(dep->departments_number[t],dep->struct_context->strct);
+                                if(!dep->struct_context->check_overload(struct_node)){
+                                    dep->heap_context->add_elem_to_heap(priority,apl_date_time,department_number,application_id_count,application_text,dep->struct_context->get_heap(struct_node));
+                                    fprintf(log_file,"%s DEPARTMENT_OVERLOADED application №%u was received by department №%u and overloaded, application was sent to department №%u",date_time,application_id_count,department_number,dep->departments_number[i]);
+
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -1289,15 +1355,29 @@ void add_applications_to_departments(departments* dep,char** file_with_applicati
                 break;
             }
         }
-        while (dep->all_applications->last_node != NULL) {
-            fibonacci_node *tmp = get_fibonacci_max(dep->all_applications);
-            dep->heap_context->add_elem_to_heap(tmp->priority, tmp->rank, tmp->application_text,
-                                                get_from_hash_table_interface(tmp->dep_number,
-                                                                              dep->struct_context->strct));
-            remove_fibonacci_max(dep->all_applications);
-        }
         i++;
         fclose(file);
     }
 }
+
+//void start_work(departments* dep){
+//    unsigned int number;
+//    void* heap = NULL;
+//    fibonacci_node* node = NULL;
+//    void* struct_node = NULL;
+//    while (dep->all_applications->last_node != NULL) {
+//        node = get_fibonacci_max(dep->all_applications);
+//        struct_node = dep->struct_context->get_struct_node(node->dep_number,dep->struct_context->strct);
+//         if (!dep->struct_context->check_overload(struct_node)){
+//             heap = get_heap_from_hash_table_node_interface(struct_node);
+//             dep->struct_context->insert()
+//         }
+//         else{
+//             //TODO логи логи сука логи
+//         }
+//        if (dep->departments_capacity[hash(node->dep_number,dep->options->departments_quantity)]) //TODO думаю пока добавить счетчики  в hash node чтобы не вычислять по массиву каждый раз
+//        dep->heap_context->add_elem_to_heap(node->priority,node->date_time,node->application_text,heap);
+//        remove_fibonacci_max(dep->all_applications);
+//    }
+//}
 
