@@ -161,6 +161,22 @@ typedef struct{
     dynamic_array_node* array;
 }dynamic_array;
 
+typedef struct bst_n{
+    void** data;
+    struct bst_n* left;
+    struct bst_n* right;
+}bst_node;
+typedef struct{
+    bst_node** root;
+}bst;
+typedef struct tri_node{
+    void** data;
+    struct tri_node** root;
+}trie_node;
+typedef struct {
+    trie_node** array;
+}trie;
+
 typedef struct{
     time_t date_time;
     unsigned int priority;
@@ -280,4 +296,21 @@ void** get_from_dynamic_array(unsigned int dep_num,dynamic_array* array);
 void** get_from_dynamic_array_interface(unsigned int dep_num,void* array);
 void delete_dynamic_array(dynamic_array* array,void (*deleter)(void*));
 void delete_dynamic_array_interface(void* array,void (*deleter)(void*));
+
+bst*  create_binary_tree();
+void insert_into_binary_tree(unsigned int dep_num,unsigned int capacity,void* ptr,bst* tree);
+void insert_into_binary_tree_interface(unsigned int dep_num,unsigned int capacity,void* ptr,void* tree);
+void** get_from_binary_tree(unsigned int dep_num,bst* tree);
+void** get_from_binary_tree_interface(unsigned int dep_num, void* tree);
+void delete_binary_tree_inside(bst_node* root,void (*deleter)(void*));
+void delete_binary_tree(bst* tree,void (*deleter)(void*));
+void delete_binary_tree_interface(void* tree, void (*deleter)(void*));
+
+trie* create_trie();
+void insert_into_trie(unsigned int dep_num,unsigned int capacity,void* ptr,trie* tree);
+void insert_into_trie_interface(unsigned int dep_num, unsigned int capacity,void* ptr,void* tree);
+void** get_from_trie(unsigned int dep_num,trie* tree);
+void** get_from_trie_interface(unsigned int dep_num, void* tree);
+void delete_trie(trie* tree, void (*deleter)(void*));
+void delete_trie_interface(trie* tree, void (*deleter)(void*));
 #endif

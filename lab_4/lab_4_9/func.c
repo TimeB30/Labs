@@ -1315,6 +1315,12 @@ dynamic_array* create_dynamic_array(){
     }
     return array;
 }
+void swap_dynamic_array_node(dynamic_array_node* node1, dynamic_array_node* node2){
+    void** tmp;
+    tmp = node1->data;
+    node1->data = node2->data;
+    node2->data = tmp;
+}
 void insert_into_dynamic_array(unsigned int dep_num,unsigned int capacity,void* ptr,dynamic_array* array){
     dynamic_array_node* tmp;
     if (array->current_size == array->size-1){
@@ -1324,26 +1330,48 @@ void insert_into_dynamic_array(unsigned int dep_num,unsigned int capacity,void* 
             memory_error();
         }
         array->array = tmp;
-        for (unsigned int i = array->current_size+1; i < array->size; i++){
+        for (unsigned int i = array->current_size; i < array->size; i++){
             allocate_memory_for_data(&array->array[i].data);
         }
     }
-    array->current_size++;
     array->array[array->current_size].data[0] = ptr;
     *((unsigned int*)array->array[array->current_size].data[1]) = dep_num;
     *((unsigned int*)array->array[array->current_size].data[2]) = capacity;
     *((unsigned int*)array->array[array->current_size].data[3]) = 0;
+    unsigned int tmp2 = array->current_size;
+    while (tmp2 > 0){
+        if (*((unsigned int*)array->array[tmp2].data[1]) < *((unsigned int*)array->array[tmp2-1].data[1])){
+            swap_dynamic_array_node(&array->array[tmp2],&array->array[tmp2-1]);
+            tmp2--;
+        }
+        else{
+            break;
+        }
+    }
+    array->current_size++;
 }
 void insert_into_dynamic_array_interface(unsigned int dep_num,unsigned int capacity,void* ptr,void* array) {
     insert_into_dynamic_array(dep_num,capacity,ptr,(dynamic_array*)array);
 }
 void** get_from_dynamic_array(unsigned int dep_num,dynamic_array* array){
-    for (int i = 0; i <= array->current_size; i++){
-        if (*((unsigned int*)array->array[i].data[1]) == dep_num){
-            return array->array[i].data;
+    int left = -1;
+    int right = array->current_size;
+    int middle;
+    while (left < right-1){
+        middle = (left + right)/2;
+        if (dep_num > *((unsigned int*)array->array[middle].data[1])){
+            left = middle;
+        }
+        else{
+            right = middle;
         }
     }
-    return NULL;
+    if (*((unsigned int*)array->array[right].data[1]) == dep_num){
+        return array->array[middle].data;
+    }
+    else {
+        return NULL;
+    }
 }
 void** get_from_dynamic_array_interface(unsigned int dep_num,void* array){
     return get_from_dynamic_array(dep_num,(dynamic_array*)array);
@@ -1358,6 +1386,115 @@ void delete_dynamic_array(dynamic_array* array,void (*deleter)(void*)){
 void delete_dynamic_array_interface(void* array, void (*deleter)(void*)){
     delete_dynamic_array((dynamic_array*)array,deleter);
 }
+bst*  create_binary_tree(){
+    bst* tree = (bst*)malloc(sizeof(bst));
+    if (tree == NULL){
+        memory_error();
+    }
+    tree->root = NULL;
+    return tree;
+}
+void insert_into_binary_tree(unsigned int dep_num,unsigned int capacity,void* ptr,bst* tree){
+    bst_node* node = (bst_node*)malloc(sizeof(bst_node));
+    if (node == NULL){
+        memory_error();
+    }
+    node->right = NULL;
+    node->left = NULL;
+    allocate_memory_for_data(&node->data);
+    node->data[0] = ptr;
+    *((unsigned int*)node->data[1]) = dep_num;
+    *((unsigned int*)node->data[2]) = capacity;
+    *((unsigned int*)node->data[3]) = 0;
+    if (tree->root == NULL){
+        tree->root = node;
+        return;
+    }
+    bst_node* tmp = tree->root;
+    while(1){
+        if (dep_num > *((unsigned int*)tmp->data[1])){
+            if (tmp->right == NULL){
+                tmp->right = node;
+                break;
+            }
+            tmp = tmp->right;
+        }
+        else {
+            if (tmp->left == NULL){
+                tmp->left = node;
+                break;
+            }
+            tmp = tmp->left;
+        }
+    }
+
+}
+void insert_into_binary_tree_interface(unsigned int dep_num,unsigned int capacity,void* ptr,void* tree){
+    insert_into_binary_tree(dep_num,capacity,ptr,(bst*)tree);
+}
+void** get_from_binary_tree(unsigned int dep_num,bst* tree){
+    bst_node* tmp = tree->root;
+    while(*((unsigned int*)tmp->data[1]) != dep_num){
+        if (dep_num > *((unsigned int*)tmp->data[1])){
+            if (tmp->right == NULL){
+                return NULL;
+            }
+            tmp = tmp->right;
+        }
+        else {
+            if (tmp->left == NULL){
+                return NULL;
+            }
+            tmp = tmp->left;
+        }
+    }
+    return tmp->data;
+}
+void** get_from_binary_tree_interface(unsigned int dep_num, void* tree){
+    return get_from_binary_tree(dep_num,(bst*)tree);
+}
+void delete_binary_tree_inside(bst_node* root,void (*deleter)(void*)){
+    if (root == NULL){
+        return;
+    }
+    delete_binary_tree_inside(root->left,deleter);
+    delete_binary_tree_inside(root->right,deleter);
+    delete_data(root->data,deleter);
+    free(root);
+}
+void delete_binary_tree(bst* tree, void (*deleter)(void*)){
+    delete_binary_tree_inside(tree->root,deleter);
+    free(tree);
+}
+void delete_binary_tree_interface(void* tree, void (*deleter)(void*)){
+    delete_binary_tree((bst*)tree,deleter);
+}
+trie* create_trie(){
+    trie* tree  = (trie*)malloc(sizeof(trie));
+    if (tree == NULL){
+        memory_error();
+    }
+    tree->array = NULL;
+    return tree;
+
+}
+void allocate_tree_array(trie_node*** array){
+    *array = (trie_node**)malloc(sizeof(trie*)*10);
+    if (*array == NULL){
+        memory_error();
+    }
+}
+void insert_into_trie(unsigned int dep_num,unsigned int capacity,void* ptr,trie* tree){
+    if (tree->array == NULL){
+        allocate_tree_array(&tree->array);
+    }
+    //TODO сделать счетчик и инсерт модом
+}
+void insert_into_trie_interface(unsigned int dep_num, unsigned int capacity,void* ptr,void* tree);
+void** get_from_trie(unsigned int dep_num,trie* tree);
+void** get_from_trie_interface(unsigned int dep_num, void* tree);
+void delete_trie(trie* tree, void (*deleter)(void*));
+void delete_trie_interface(trie* tree, void (*deleter)(void*));
 departments* create_departments(departments_option* dep_ops){
     departments* dep = (departments*)malloc(sizeof(departments));
     if (dep == NULL){
@@ -1436,6 +1573,10 @@ departments* create_departments(departments_option* dep_ops){
             dep->struct_context->delete_struct = delete_dynamic_array_interface;
             break;
         case BinarySearchTree:
+            dep->struct_context->strct = create_binary_tree();
+            dep->struct_context->insert = insert_into_binary_tree_interface;
+            dep->struct_context->get_struct_data = get_from_binary_tree_interface;
+            dep->struct_context->delete_struct = delete_binary_tree_interface;
             break;
         case Trie:
             break;
