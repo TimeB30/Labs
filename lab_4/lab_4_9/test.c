@@ -22,7 +22,7 @@ int main(){
     while (fscanf(binary_heap_file,"%s",letter) != EOF){
         number = strtoul(letter,&end,10);
         date_time = rand()%100;
-        add_elem_to_binary_heap(number,date_time,"test\0",binary_heap1);
+        add_elem_to_binary_heap(number,date_time,0,"test\0",binary_heap1);
 
     }
     print_b_heap(binary_heap1);
@@ -33,15 +33,15 @@ int main(){
     while ((fscanf(binary_heap_file2,"%s",letter)) != EOF){
         number = strtoul(letter,&end,10);
         date_time = rand()%100;
-        add_elem_to_binary_heap(number,date_time,"test\0",binary_heap2);
+        add_elem_to_binary_heap(number,date_time,0,"test\0",binary_heap2);
     }
     print_b_heap(binary_heap2);
     printf("----------------------------------------------------------------------------------\n");
     printf("merge binomial_heap and binary_heap2\n");
     merge_binary_heaps(binary_heap1,binary_heap2);
     print_b_heap(binary_heap1);
-    delete_binary_heap(&binary_heap1);
-    delete_binary_heap(&binary_heap2);
+    delete_binary_heap(binary_heap1);
+    delete_binary_heap(binary_heap2);
     printf("----------------------------------------------------------------------------------\n");
     printf("binomial_heap\n");
     FILE* binomial_heap_file = fopen("binomial_test.txt", "r");
@@ -49,7 +49,7 @@ int main(){
      while ((fscanf(binomial_heap_file,"%s",letter)) != EOF){
          number = strtoul(letter,&end,10);
          date_time = rand()%100;
-        add_elem_to_binomial_heap(number,date_time,"test",binomial_heap);
+        add_elem_to_binomial_heap(number,date_time,0,"test",binomial_heap);
 
     }
     delete_binomial_heap(binomial_heap);
@@ -61,7 +61,7 @@ int main(){
     while (fscanf(fibonacci_heap_file,"%s",letter) != EOF){
         number = strtoul(letter,&end,10);
         date_time = rand()%100;
-        add_elem_to_fibonacci_heap(number,date_time,"test_fib\n",fibonacci_heap);
+        add_elem_to_fibonacci_heap(number,date_time,0,"test_fib\n",fibonacci_heap);
 
     }
     delete_fibonacci_heap(fibonacci_heap);
@@ -72,7 +72,7 @@ int main(){
      while (fscanf(file_left,"%s",letter) != EOF){
         number = strtol(letter, &end, 10);
         date_time = rand() % 100;
-        add_elem_to_leftist_heap(number, date_time, "test_left", leftist_heap);
+        add_elem_to_leftist_heap(number, date_time,0, "test_left", leftist_heap);
 
      }
 
@@ -81,7 +81,7 @@ int main(){
 
 //11 23 17 15 19 13 21
 
-    delete_leftist_heap(&leftist_heap);
+    delete_leftist_heap(leftist_heap);
 
     printf("----------------------------------------------------------------------------------\n");
     printf("Skewheap heap\n");
@@ -90,10 +90,10 @@ int main(){
     while (fscanf(file_skew,"%s",letter) != EOF){
         number = strtol(letter, &end, 10);
         date_time = rand() % 100;
-        add_elem_to_skew_heap(number, date_time, "test_left", skew_heap);
+        add_elem_to_skew_heap(number, date_time,0, "test_left", skew_heap);
 
     }
-    delete_skew_heap(&skew_heap);
+    delete_skew_heap(skew_heap);
 
     printf("----------------------------------------------------------------------------------\n");
     printf("Treap heap\n");
@@ -102,15 +102,16 @@ int main(){
     while (fscanf(file_treap,"%s",letter) != EOF){
         number = strtol(letter, &end, 10);
         date_time = rand() % 100;
-        add_elem_to_treap_heap(number,date_time,"test_trip",treap_heap);
+        add_elem_to_treap_heap(number,date_time,0,"test_trip",treap_heap);
     }
 //    delete_treap_heap(treap_heap);
 
     printf("----------------------------------------------------------------------------------\n");
     printf(" hash table with treap heap\n");
     hash_table* table = create_hash_table();
-    insert_into_hash_table_interface(122,treap_heap,table);
-    delete_treap_heap(table->array[22].ptr);
+    table->dep_quantity = 3;
+    insert_into_hash_table(3,30,treap_heap,&table);
+    delete_treap_heap(table->array[0].data[0]);
 
 
 
