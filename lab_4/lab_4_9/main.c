@@ -82,8 +82,6 @@ int main(int argc, char** argv) {
     deps_option->max_priority = MAX_PRIORITY;
     print_dep_ops(deps_option);
     departments* dep = create_departments(deps_option);
-//    add_applications_to_departments(dep,argv,argc);
     start_work(dep,argc,argv);
-//print ((hash_table_node*)((hash_table*)(dep->struct_context->strct))->array)[2]
-//    print ((binary_heap*)(((hash_table_node*)(((hash_table*)(dep->struct_context->strct))->array))[2].ptr))->heap->application_text
+    close_department(dep);
 }

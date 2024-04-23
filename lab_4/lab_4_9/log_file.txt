@@ -1,0 +1,26 @@
+2024-04-01 10:30:30  NEW_REQUEST application №1 was received by department №5
+2024-04-01 10:30:30  NEW_REQUEST application №2 was received by department №2
+2024-04-01 10:30:30  DEPARTMENT_OVERLOADED application №3 was received by department №2 and overloaded, application was sent to department №1
+2024-04-01 10:30:30  DEPARTMENT_OVERLOADED application №4 was received by department №2 and overloaded, application was sent to department №3
+2024-04-01 10:30:30  DEPARTMENT_OVERLOADED application №5 was received by department №2 and overloaded, application was sent to department №3
+2024-04-01 10:30:30  DEPARTMENT_OVERLOADED application №6 was received by department №2 and overloaded, application was sent to department №4
+2024-04-01 10:31:30  REQUEST_HANDLING_STARTED application № 3 handled by operator LCPSKLRYV department № 1
+2024-04-01 10:31:30  REQUEST_HANDLING_STARTED application № 2 handled by operator CPJNBPBWL department № 2
+2024-04-01 10:31:30  REQUEST_HANDLING_STARTED application № 5 handled by operator SREHFMXRK department № 3
+2024-04-01 10:31:30  REQUEST_HANDLING_STARTED application № 6 handled by operator CWITRSGLR department № 4
+2024-04-01 10:31:30  REQUEST_HANDLING_STARTED application № 1 handled by operator XVTJMXYPU department № 5
+2024-04-01 10:31:41  REQUEST_HANDLING_FINISHED work on application № 5 finished by operator SREHFMXRK department № 3
+2024-04-01 10:33:30  REQUEST_HANDLING_STARTED application № 4 handled by operator BQFGXMUVG department № 3
+2024-04-01 10:36:59  REQUEST_HANDLING_FINISHED work on application № 6 finished by operator CWITRSGLR department № 4
+2024-04-01 10:37:32  REQUEST_HANDLING_FINISHED work on application № 2 finished by operator CPJNBPBWL department № 2
+2024-04-01 10:38:39  REQUEST_HANDLING_FINISHED work on application № 1 finished by operator XVTJMXYPU department № 5
+2024-04-01 10:40:23  REQUEST_HANDLING_FINISHED work on application № 4 finished by operator BQFGXMUVG department № 3
+2024-04-01 10:41:13  REQUEST_HANDLING_FINISHED work on application № 3 finished by operator LCPSKLRYV department № 1
+2024-04-01 11:31:22  NEW_REQUEST application №7 was received by department №4
+2024-04-01 11:31:30  NEW_REQUEST application №8 was received by department №2
+2024-04-01 11:31:30  REQUEST_HANDLING_STARTED application № 8 handled by operator AJCLFVENH department № 2
+2024-04-01 11:31:30  REQUEST_HANDLING_STARTED application № 7 handled by operator UHUORJOSA department № 4
+2024-04-01 11:33:15  REQUEST_HANDLING_FINISHED work on application № 8 finished by operator AJCLFVENH department № 2
+2024-04-01 11:36:54  REQUEST_HANDLING_FINISHED work on application № 7 finished by operator UHUORJOSA department № 4
+2024-04-02 09:29:25  NEW_REQUEST application №9 was received by department №3
+2024-04-02 09:29:30  REQUEST_HANDLING_STARTED application № 9 handled by operator IBDNJDBEY department № 3

@@ -50,7 +50,7 @@ int str_to_unsigned_int(char* str, unsigned int* num){
     char* end;
     *num = strtoul(str,&end,10);
     const int error = errno == ERANGE;
-    if (errno){
+    if (error){
         return 1;
     }
     else if (end[0] != 0){
@@ -62,7 +62,7 @@ int str_to_double(char* str, double* num){
     char* end;
     *num = strtod(str,&end);
     const int error = errno == ERANGE;
-    if (errno){
+    if (error){
         return 1;
     }
     else if (end[0] != 0){
@@ -86,7 +86,7 @@ int check_files(int argc, char** argv){
 
 
 
-void siftUp(binary_heap* b_heap,int index){
+void siftUp(binary_heap* b_heap,unsigned int index){
     int i = index;
     int parent = (i-1)/2;
     binary_heap_node buff;
@@ -121,7 +121,7 @@ void siftDown(binary_heap* b_heap,int index){
     int left = 2*index + 1;
     int right = 2*index + 2;
     int node_to_switch = left;
-    int current_size = b_heap->current_size;
+    unsigned int current_size = b_heap->current_size;
     binary_heap_node buff;
     if (left > current_size){
         return;
@@ -212,9 +212,7 @@ void delete_binary_heap(binary_heap* heap){
 void delete_binary_heap_interface(void* heap){
     delete_binary_heap((binary_heap*)heap);
 }
-void* get_binary_max(binary_heap* heap){
-    return heap->heap;
-}
+
 unsigned int get_binary_max_appln_id(binary_heap* heap){
     if (heap->current_size == -1){
         return 0;
@@ -224,18 +222,10 @@ unsigned int get_binary_max_appln_id(binary_heap* heap){
 unsigned int get_binary_max_appln_id_interface(void* heap){
     return get_binary_max_appln_id((binary_heap*)heap);
 }
-void print_b_heap(binary_heap* heap){
-    for(int i = 0; i <= heap->current_size; i++){
-        printf("%u %u\n",heap->heap[i].priority,heap->heap[i].date_time);
-    }
-}
 void remove_binary_max(binary_heap* b_heap){
-//    print_b_heap(b_heap);
-//    printf("\n");
     if (b_heap->current_size == -1){
         return;
     }
-    unsigned int result = b_heap->heap[0].priority;
     b_heap->heap[0] = b_heap->heap[b_heap->current_size];
     b_heap->current_size--;
     siftDown(b_heap,0);
@@ -452,7 +442,6 @@ void merge_binomial_heaps_inside(binomial_heap* binom_heap, binomial_node* node2
     binomial_node* tmp1 = binom_heap->last_node;
     binomial_node* tmp2 = node2;
     binomial_node* tmp_copy1 = NULL;
-    binomial_node* tmp_copy2 = NULL;
     binomial_node* tmp_next = NULL;
     while((tmp1 != NULL) && (tmp2 != NULL)){
         tmp_next = tmp2->next;
@@ -830,7 +819,6 @@ void remove_fibonacci_max_interface(void* heap){
     remove_fibonacci_max((fibonacci_heap*)heap);
 }
 void delete_fibonacci_heap(fibonacci_heap* heap){
-    fibonacci_node* tmp = heap->last_node;
     while(heap->last_node != NULL){
         printf("%u %u\n",heap->max->priority,heap->max->date_time);
         remove_elem_from_fibonacci_heap(heap->max,heap);
@@ -907,7 +895,7 @@ void merge_leftist_heaps(leftist_heap* heap1, leftist_heap* heap2){
 }
 void add_elem_to_leftist_heap(unsigned int priority, time_t date_time,unsigned int appln_id ,char* application_text,leftist_heap* heap){
     leftist_node* node = (leftist_node*)malloc(sizeof(leftist_node));
-    if ((node == NULL)){
+    if (node == NULL){
         memory_error();
     }
     node->application_text = (char*)malloc(sizeof(char)*(strlen(application_text)+1));
@@ -1122,6 +1110,7 @@ treap_node* merge_treap_heap_inside(treap_node* node1, treap_node* node2){
         node2->left = merge_treap_heap_inside(node1,node2->left);
         return  node2;
     }
+    return NULL;
 }
 void merge_treap_heaps(treap_heap* heap1, treap_heap* heap2){
     merge_treap_heap_inside(heap1->root,heap2->root);
@@ -1181,24 +1170,27 @@ void delete_treap_heap(treap_heap* heap){
 void delete_treap_heap_interface(void* heap){
     delete_treap_heap((treap_heap*)heap);
 }
-void delete_data(void** data){
-    free(data[0]);
+void delete_data(void** data,void (*deleter)(void*)){
+    if (data[0] != NULL) {
+        deleter(data[0]);
+    }
     free(data[1]);
     free(data[2]);
     free(data[3]);
     free(data);
 }
-void allocate_memory_for_data(void** data){
-    data = (void**)malloc(sizeof(void*)*4);
+void allocate_memory_for_data(void*** data){
+    *data = (void**)malloc(sizeof(void*)*4);
     if (*data == NULL){
         memory_error();
     }
-    data[0] = NULL;
+    (*data)[0] = NULL;
     for (int i = 1; i < 4; i++){
-        data[i] = malloc(sizeof(unsigned int));
-        if (data[i] == NULL){
+        (*data)[i] = malloc(sizeof(unsigned int));
+        if (((*data)[i]) == NULL){
             memory_error();
         }
+        *((unsigned int*)(*data)[i]) = 0; // TODO как может быть сравнение с 0 если есть current size
     }
 }
 hash_table* create_hash_table() {
@@ -1216,7 +1208,7 @@ hash_table* create_hash_table() {
     }
     for (int i = 0; i < table->size; i++){
         table->array[i].next = NULL;;
-        allocate_memory_for_data(table->array[i].data);
+        allocate_memory_for_data(&table->array[i].data);
     }
     return table;
 }
@@ -1235,7 +1227,7 @@ void insert_into_hash_table(unsigned int key,unsigned int dep_capacity, void* pt
         }
         table->array = tmp_table;
         for(unsigned int i = table->size-26; i < table->size; i++){
-            allocate_memory_for_data(table->array[i].data);
+            allocate_memory_for_data(&(table->array[i].data));
         }
     }
     hash_table_node* tmp = NULL;
@@ -1288,21 +1280,24 @@ void** get_from_hash_table_interface(unsigned int key,void* table){
     return get_from_hash_table(key,(hash_table*)table);
 }
 
-void delete_hash_table(hash_table* table){
+void delete_hash_table(hash_table* table,void (*deleter)(void*)){
     hash_table_node* tmp;
     hash_table_node* tmp2;
     for (int i = 0; i < table->size;i++){
-        tmp = &(table->array[i]);
-        while(tmp->next != NULL){
+        tmp = table->array[i].next;
+        while(tmp != NULL){
             tmp2 = tmp->next;
-            delete_data(tmp2->data);
+            delete_data(tmp->data,deleter);
             free(tmp);
             tmp = tmp2;
         }
+        delete_data(table->array[i].data,deleter);
     }
+    free(table->array);
+    free(table);
 }
-void delete_hash_table_interface(void* table){
-    delete_hash_table((hash_table*)table);
+void delete_hash_table_interface(void* table, void (*deleter)(void*)){
+    delete_hash_table((hash_table*)table,deleter);
 }
 dynamic_array* create_dynamic_array(){
     dynamic_array* array = (dynamic_array*)malloc(sizeof(dynamic_array));
@@ -1316,15 +1311,9 @@ dynamic_array* create_dynamic_array(){
         memory_error();
     }
     for (int i = 0; i < array->size; i++){
-        allocate_memory_for_data(array->array[i].data);
-        if (array->array[i].data == NULL){
-            memory_error();
-        }
+        allocate_memory_for_data(&array->array[i].data);
     }
     return array;
-}
-void* create_dynamic_array_interface(){
-    return create_dynamic_array();
 }
 void insert_into_dynamic_array(unsigned int dep_num,unsigned int capacity,void* ptr,dynamic_array* array){
     dynamic_array_node* tmp;
@@ -1336,7 +1325,7 @@ void insert_into_dynamic_array(unsigned int dep_num,unsigned int capacity,void* 
         }
         array->array = tmp;
         for (unsigned int i = array->current_size+1; i < array->size; i++){
-            allocate_memory_for_data(array->array[i].data);
+            allocate_memory_for_data(&array->array[i].data);
         }
     }
     array->current_size++;
@@ -1359,9 +1348,18 @@ void** get_from_dynamic_array(unsigned int dep_num,dynamic_array* array){
 void** get_from_dynamic_array_interface(unsigned int dep_num,void* array){
     return get_from_dynamic_array(dep_num,(dynamic_array*)array);
 }
+void delete_dynamic_array(dynamic_array* array,void (*deleter)(void*)){
+    for(int i = 0; i < array->size; i++){
+        delete_data(array->array[i].data,deleter);
+    }
+    free(array->array);
+    free(array);
+}
+void delete_dynamic_array_interface(void* array, void (*deleter)(void*)){
+    delete_dynamic_array((dynamic_array*)array,deleter);
+}
 departments* create_departments(departments_option* dep_ops){
     departments* dep = (departments*)malloc(sizeof(departments));
-    unsigned int acceptable_number;
     if (dep == NULL){
         memory_error();
     }
@@ -1433,8 +1431,9 @@ departments* create_departments(departments_option* dep_ops){
             break;
         case DynamicArray:
             dep->struct_context->strct = create_dynamic_array();
-            dep->struct_context->insert = insert_into_hash_table_interface;
+            dep->struct_context->insert = insert_into_dynamic_array_interface;
             dep->struct_context->get_struct_data = get_from_dynamic_array_interface;
+            dep->struct_context->delete_struct = delete_dynamic_array_interface;
             break;
         case BinarySearchTree:
             break;
@@ -1453,24 +1452,10 @@ departments* create_departments(departments_option* dep_ops){
     }
     return dep;
 }
-//int check_overload(unsigned int dep_num,departments* deps){
-//    unsigned int hash_num = hash(dep_num);
-//    if (deps->applications_quantity[hash_num] == deps->departments_capacity[hash_num]){
-//        return 1;
-//    }
-//    return 0;
-//}
-//void create_application(application* apl,struct tm* tm_struct,FILE* file) {
-//    char* inf = (char*)malloc(sizeof(char)*20);create_bina
-//    parse_time(file,tm_struct);
-//    time_t date_time = mktime(tm_struct);
-//    apl->date_time = date_time;
-//    fscanf(file,"%d",&apl->priority);
-//    fscanf(file,"%d",)
-//}
 void write_application_text(FILE* file, char** text,unsigned int* size) {
     if (*size == 0){
         *text = (char*)malloc(sizeof(char)*10);
+        *size = 10;
     }
     char* tmp;
     char letter = fgetc(file);
@@ -1478,7 +1463,7 @@ void write_application_text(FILE* file, char** text,unsigned int* size) {
     while (((letter = fgetc(file)) != EOF) && (letter != '\n')){
         if (i == *size-1){
             *size += 10;
-            tmp = realloc(*text,sizeof(char)*(*size));
+            tmp = (char*)realloc(*text,sizeof(char)*(*size));
             if (tmp == NULL) {
                 memory_error();
             }
@@ -1713,4 +1698,18 @@ void start_work(departments* deps,int argc,char** argv){
 
         }
     }
+    free(appln.appln_text);
+}
+
+void close_department(departments* deps){
+    fclose(deps->log_file);
+    deps->struct_context->delete_struct(deps->struct_context->strct,deps->heap_context->delete_heap);
+    free(deps->departments_numbers);
+    free(deps->options->heap_type);
+    free(deps->options->data_type);
+    free(deps->options->operators_quantity);
+    free(deps->heap_context);
+    free(deps->struct_context);
+    free(deps->options);
+    free(deps);
 }

@@ -5,6 +5,21 @@
 #include<errno.h>
 #include<string.h>
 #include<time.h>
+
+typedef struct {
+    void* (*create_heap)();
+    void (*add_elem_to_heap)(unsigned int,time_t,unsigned int,char*,void*);
+    unsigned int (*get_max_appln_id)(void*);
+    void (*remove_max)(void*);
+    void (*delete_heap)(void*);
+}heap_context;
+
+typedef struct {
+    void* strct;
+    void (*insert)(unsigned int,unsigned int, void*, void*);
+    void** (*get_struct_data)(unsigned int, void*);
+    void (*delete_struct)(void*, void (*) (void*));
+}struct_to_save_heaps_context;
 enum heap_data_types{
     BinaryHeap,
     BinomialHeap,
@@ -30,13 +45,21 @@ typedef struct{
     unsigned int departments_quantity;
     double overload_coefficient;
 }departments_option;
+typedef struct {
+    departments_option* options;
+    unsigned int* departments_numbers;
+    time_t current_time;
+    heap_context* heap_context;
+    struct_to_save_heaps_context* struct_context;
+    FILE* log_file;
+}departments;
 
 typedef struct{
     time_t date_time;
     unsigned int priority;
     char* application_text;
     unsigned int dep_number;
-    unsigned int application_id
+    unsigned int application_id;
 } binary_heap_node;
 typedef struct{
     unsigned int size;
@@ -138,28 +161,6 @@ typedef struct{
     dynamic_array_node* array;
 }dynamic_array;
 
-typedef struct {
-    void* (*create_heap)();
-    void (*add_elem_to_heap)(unsigned int,time_t,unsigned int,char*,void*);
-    unsigned int (*get_max_appln_id)(void*);
-    void (*remove_max)(void*);
-    void (*delete_heap)(void* heap);
-}heap_context;
-
-typedef struct {
-    void* strct;
-    void (*insert)(unsigned int,unsigned int, void*, void*);
-    void** (*get_struct_data)(unsigned int, void*);
-    void (*delete_struct)(void*);
-}struct_to_save_heaps_context;
-typedef struct {
-    departments_option* options;
-    unsigned int* departments_numbers;
-    time_t current_time;
-    heap_context* heap_context;
-    struct_to_save_heaps_context* struct_context;
-    FILE* log_file;
-}departments;
 typedef struct{
     time_t date_time;
     unsigned int priority;
@@ -261,15 +262,22 @@ int str_to_unsigned_int(char* str, unsigned int* num);
 
 
 departments* create_departments(departments_option* dep_ops);
-void add_applications_to_departments(departments* dep,char** file_with_applications,int file_count);
+void start_work(departments* deps,int argc,char** argv);
+void close_department(departments* deps);
 
 hash_table* create_hash_table();
 void** get_from_hash_table(unsigned int key,hash_table* table);
 void** get_from_hash_table_interface(unsigned int key,void* table);
 void insert_into_hash_table(unsigned int key,unsigned int dep_capacity, void* ptr,hash_table* table);
 void insert_into_hash_table_interface(unsigned int key,unsigned int dep_capacity, void* ptr,void* table);
-void delete_hash_table(hash_table* table);
-void delete_hash_table_interface(void* table);
+void delete_hash_table(hash_table* table,void (*deleter)(void*));
+void delete_hash_table_interface(void* table,void (*deleter)(void*));
 
-void start_work(departments* deps,int argc,char** argv);
+dynamic_array* create_dynamic_array();
+void insert_into_dynamic_array(unsigned int dep_num,unsigned int capacity,void* ptr,dynamic_array* array);
+void insert_into_dynamic_array_interface(unsigned int dep_num,unsigned int capacity,void* ptr,void* array);
+void** get_from_dynamic_array(unsigned int dep_num,dynamic_array* array);
+void** get_from_dynamic_array_interface(unsigned int dep_num,void* array);
+void delete_dynamic_array(dynamic_array* array,void (*deleter)(void*));
+void delete_dynamic_array_interface(void* array,void (*deleter)(void*));
 #endif
