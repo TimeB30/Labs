@@ -46,9 +46,9 @@ enum heap_data_types heap_type_recog(departments_option* dep){
 
 
 
-int str_to_unsigned_int(char* str, unsigned int* num){
+int str_to_int(char* str,int* num){
     char* end;
-    *num = strtoul(str,&end,10);
+    *num = strtol(str,&end,10);
     const int error = errno == ERANGE;
     if (error){
         return 1;
@@ -1474,27 +1474,92 @@ trie* create_trie(){
     if (tree == NULL){
         memory_error();
     }
-    tree->array = NULL;
+    tree->root = NULL;
     return tree;
 
 }
-void allocate_tree_array(trie_node*** array){
-    *array = (trie_node**)malloc(sizeof(trie*)*10);
+void allocate_node_array(trie_node*** array){
+    *array = (trie_node**)malloc(sizeof(trie_node*)*10);
     if (*array == NULL){
         memory_error();
     }
+    for (int i = 0; i < 10; i++){
+        (*array)[i] = NULL;
+    }
+}
+void insert_into_trie_inside(unsigned int dep_num,unsigned int count,unsigned int capacity,void* ptr,trie_node** node){
+    if (*node == NULL){
+        *node = (trie_node*)malloc(sizeof(trie_node));
+        if (*node == NULL){
+            memory_error();
+        }
+        allocate_node_array(&(*node)->array);
+        allocate_memory_for_data(&(*node)->data);
+    }
+    if (count == 0){
+        (*node)->data[0] = ptr;
+        *((unsigned int*)(*node)->data[1]) = dep_num;
+        *((unsigned int*)(*node)->data[2]) = capacity;
+        *((unsigned int*)(*node)->data[3]) = 0;
+        return;
+    }
+    unsigned int index = count%10;
+    count = count/10;
+    //TODO сделать счетчик и инсерт модом done
+    insert_into_trie_inside(dep_num,count,capacity,ptr,&(*node)->array[index]);
 }
 void insert_into_trie(unsigned int dep_num,unsigned int capacity,void* ptr,trie* tree){
-    if (tree->array == NULL){
-        allocate_tree_array(&tree->array);
-    }
-    //TODO сделать счетчик и инсерт модом
+    insert_into_trie_inside(dep_num,dep_num,capacity,ptr,&tree->root);
 }
-void insert_into_trie_interface(unsigned int dep_num, unsigned int capacity,void* ptr,void* tree);
-void** get_from_trie(unsigned int dep_num,trie* tree);
-void** get_from_trie_interface(unsigned int dep_num, void* tree);
-void delete_trie(trie* tree, void (*deleter)(void*));
-void delete_trie_interface(trie* tree, void (*deleter)(void*));
+void insert_into_trie_interface(unsigned int dep_num, unsigned int capacity,void* ptr,void* tree){
+    insert_into_trie(dep_num,capacity,ptr,(trie*)tree);
+}
+unsigned int my_fast_pow(unsigned int num, unsigned int degree){
+    unsigned int result = 1;
+    while (degree > 0){
+        if (degree % 2 == 1){
+            result *= num;
+        }
+        num *= num;
+        degree /= 2;
+
+    }
+    return result;
+}
+void** find_trie_node(unsigned int dep_num ,trie_node* node){
+    if (node == NULL){
+        return NULL;
+    }
+    else if (dep_num == 0){
+        return node->data;
+    }
+    unsigned int index = dep_num%10;
+    find_trie_node((dep_num/10),node->array[index]);
+}
+void** get_from_trie(unsigned int dep_num,trie* tree){
+    return find_trie_node(dep_num,tree->root);
+}
+void** get_from_trie_interface(unsigned int dep_num, void* tree){
+    return get_from_trie(dep_num,(trie*)tree);
+};
+void delete_all_trie_nodes(trie_node* node,void (*deleter)(void*)){
+    if (node == NULL){
+        return;
+    }
+    for (int i = 0; i < 10; i++){
+        delete_all_trie_nodes(node->array[i],deleter);
+    }
+    delete_data(node->data,deleter);
+    free(node->array);
+    free(node);
+}
+void delete_trie(trie* tree, void (*deleter)(void*)){
+    delete_all_trie_nodes(tree->root,deleter);
+    free(tree);
+}
+void delete_trie_interface(void* tree, void (*deleter)(void*)){
+    delete_trie((trie*)tree,deleter);
+}
 departments* create_departments(departments_option* dep_ops){
     departments* dep = (departments*)malloc(sizeof(departments));
     if (dep == NULL){
@@ -1579,6 +1644,10 @@ departments* create_departments(departments_option* dep_ops){
             dep->struct_context->delete_struct = delete_binary_tree_interface;
             break;
         case Trie:
+            dep->struct_context->strct = create_trie();
+            dep->struct_context->insert = insert_into_trie_interface;
+            dep->struct_context->get_struct_data = get_from_trie_interface;
+            dep->struct_context->delete_struct = delete_trie_interface;
             break;
     }
     unsigned int capacity;

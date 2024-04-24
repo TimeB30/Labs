@@ -5,7 +5,7 @@
 #include<errno.h>
 #include<string.h>
 #include<time.h>
-
+#include<math.h>
 typedef struct {
     void* (*create_heap)();
     void (*add_elem_to_heap)(unsigned int,time_t,unsigned int,char*,void*);
@@ -171,10 +171,10 @@ typedef struct{
 }bst;
 typedef struct tri_node{
     void** data;
-    struct tri_node** root;
+    struct tri_node** array;
 }trie_node;
-typedef struct {
-    trie_node** array;
+typedef struct{
+    trie_node* root;
 }trie;
 
 typedef struct{
@@ -274,7 +274,7 @@ void delete_treap_heap(treap_heap* heap);
 void delete_treap_heap_interface(void* heap);
 
 int check_files(int argc, char** argv);
-int str_to_unsigned_int(char* str, unsigned int* num);
+int str_to_int(char* str, int* num);
 
 
 departments* create_departments(departments_option* dep_ops);
@@ -312,5 +312,5 @@ void insert_into_trie_interface(unsigned int dep_num, unsigned int capacity,void
 void** get_from_trie(unsigned int dep_num,trie* tree);
 void** get_from_trie_interface(unsigned int dep_num, void* tree);
 void delete_trie(trie* tree, void (*deleter)(void*));
-void delete_trie_interface(trie* tree, void (*deleter)(void*));
+void delete_trie_interface(void* tree, void (*deleter)(void*));
 #endif
