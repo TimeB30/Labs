@@ -1,17 +1,10 @@
 #include<stdio.h>
 #include<stdlib.h>
-
+#include<time.h>
 int main(){
-    FILE* file = fopen("test.txt","r");
-    char* w = (char*)malloc(sizeof(char)*10);
-    fscanf(file,"%s",w);
-    fgetc(file);
-    fgetc(file);
-    fscanf(file,"%s",w);
-    printf("%s\n",w);
-//    char letter;
-//    letter = fgetc(file);
-//    if (letter == EOF){
-//        printf("shiit\n");
-//    }
+    time_t timestamp = 1711918800+86400;
+    struct tm *timeinfo = localtime(&timestamp);
+    printf("Дата и время: %s", asctime(timeinfo));
+    return 0;
+
 }

@@ -275,8 +275,14 @@ void delete_treap_heap(treap_heap* heap);
 void delete_treap_heap_interface(void* heap);
 
 int check_files(int argc, char** argv);
-int str_to_int(char* str, int* num);
+int str_to_int(char* str,long* num);
+int str_to_double(char* str, double* num);
 void generate(FILE* file);
+int compare_dates(long* start_date_time,long* end_date_time);
+void memory_error();
+void create_applications(int argc, char** argv);
+double eps();
+
 
 departments* create_departments(departments_option* dep_ops);
 void start_work(departments* deps,int argc,char** argv);

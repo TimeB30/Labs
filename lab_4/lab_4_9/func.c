@@ -53,11 +53,10 @@ void generate(FILE* file){
     if (file == NULL){
         return;
     }
-    srand(time(NULL));
     char heaps[6][15] = {"BinaryHeap\0","BinomialHeap\0","FibonacciHeap\0","SkewHeap\0","LeftistHeap\0","Treap\0"};
     char structs[4][18] = {"HashSet\0","DynamicArray\0","BinarySearchTree\0","Trie\0"};
-    time_t start_time = 1711918800 + rand()%518000;
-    time_t end_time = start_time + rand()%518000;
+    time_t start_time = 1711918800;
+    time_t end_time = start_time + rand()%86400;
     int min_process_time = rand()%5+1;
     int max_process_time = min_process_time + rand()%10+1;
     int dep_quantity = rand()%20 + 1;
@@ -78,11 +77,14 @@ void generate(FILE* file){
 }
 
 
-int str_to_int(char* str,int* num){
+int str_to_int(char* str,long* num){
     char* end = NULL;
     *num = strtol(str,&end,10);
     const int error = errno == ERANGE;
     if (error){
+        return 1;
+    }
+    else if (*num < 0){
         return 1;
     }
     else if (end[0] != '\0'){
@@ -101,6 +103,84 @@ int str_to_double(char* str, double* num){
         return 1;
     }
     return 0;
+}
+int compare_dates(long* start_date_time,long* end_date_time){
+    struct tm date1;
+    struct tm date2;
+    date1.tm_year = start_date_time[0];
+    date1.tm_mon  = start_date_time[1];
+    date1.tm_mday = start_date_time[2];
+    date1.tm_hour = start_date_time[3];
+    date1.tm_min = start_date_time[4];
+    date1.tm_sec = start_date_time[5];
+    date1.tm_gmtoff = 0;
+    date1.tm_wday = 0;
+    date1.tm_yday = 0;
+    date1.tm_isdst = 0;
+    date1.tm_zone = 0;
+    date2.tm_year = end_date_time[0];
+    date2.tm_mon  = end_date_time[1];
+    date2.tm_mday = end_date_time[2];
+    date2.tm_hour = end_date_time[3];
+    date2.tm_min = end_date_time[4];
+    date2.tm_sec = end_date_time[5];
+    date2.tm_gmtoff = 0;
+    date2.tm_wday = 0;
+    date2.tm_yday = 0;
+    date2.tm_isdst = 0;
+    date2.tm_zone = 0;
+    time_t date1_s = mktime(&date1);
+    time_t date2_s = mktime(&date2);
+    if (date2_s <= date1_s){
+        return 1;
+    }
+    else{
+        return 0;
+    }
+}
+
+void random_operator_name(char* name){
+    for(int i = 0; i < 9;i++){
+        name[i] = rand()%25 + 65;
+    }
+    name[9] = '\0';
+}
+void create_applications(int argc, char** argv){
+    int file_index = 3;
+    FILE* file;
+    while (file_index < argc) {
+        file = fopen(argv[file_index],"w");
+        for (int i = 0; i < 100; i++) {
+            int year = 2024;
+            int month = 4;
+            int day;
+            if (month == 2) {
+                day = rand() % 29;
+            } else if ((month == 4) || (month == 6) || (month == 9) || (month == 11)) {
+//                day = rand() % 31;
+                    day = 1;
+            } else {
+                day = rand() % 32;
+            }
+            int hour = rand() % 24;
+            int minute = rand() % 60;
+            int second = rand() % 60;
+            int priority = rand() % 100;
+            int deparment = rand() % 10;
+            char text[10];
+            random_operator_name(text);
+            fprintf(file,"%04d-%02d-%02d %02d:%02d:%02d %d %d %s\n",year,month,day,hour,minute,second,priority,deparment,text);
+        }
+        fclose(file);
+        file_index++;
+    }
+}
+double eps(){
+    double num = 0.5;
+    while(num > 0){
+        num *= 0.5;
+    }
+    return num;
 }
 int check_files(int argc, char** argv){
     for (int i = 2; i < argc; i++){
@@ -273,9 +353,9 @@ binary_heap_node* get_max_binary_heap(binary_heap* b_heap){
 void remove_binary_max_interface(void* b_heap){
     remove_binary_max((binary_heap*)b_heap);
 }
-void parse_time(FILE* file, struct tm* tm_struct){
-    tm_struct->tm_year = 0;
-    fscanf(file,"%d-%d-%d %d:%d:%d",&(tm_struct->tm_year),&(tm_struct->tm_mon),&(tm_struct->tm_mday),&(tm_struct->tm_hour),&(tm_struct->tm_min),&(tm_struct->tm_sec));
+int parse_time(FILE* file, struct tm* tm_struct){
+    int result = 1;
+    result = fscanf(file,"%d-%d-%d %d:%d:%d",&(tm_struct->tm_year),&(tm_struct->tm_mon),&(tm_struct->tm_mday),&(tm_struct->tm_hour),&(tm_struct->tm_min),&(tm_struct->tm_sec));
     tm_struct->tm_year -= 1900;
     tm_struct->tm_mon -= 1;
     tm_struct->tm_gmtoff = 0;
@@ -283,6 +363,10 @@ void parse_time(FILE* file, struct tm* tm_struct){
     tm_struct->tm_yday = 0;
     tm_struct->tm_isdst = 0;
     tm_struct->tm_zone = 0;
+    if (result == EOF){
+        return 1;
+    }
+    return 0;
 }
 void print_date_time(struct tm* date_time){
     printf("%d-%d-%d %d:%d:%d\n",date_time->tm_year,date_time->tm_mon,date_time->tm_mday,date_time->tm_hour,date_time->tm_min,date_time->tm_sec);
@@ -298,10 +382,6 @@ int create_departments_option(departments_option** dep,FILE* file) {
     (*dep)->max_priority = 0;
     (*dep)->heap_type = (char *) malloc(sizeof(char) * 14);
     (*dep)->data_type = (char *) malloc(sizeof(char) * 17);
-//    if (((*dep)->start_date_time == NULL) || ((*dep)->end_date_time == NULL) || ((*dep)->heap_type == NULL) ||
-//        ((*dep)->data_type == NULL)) {
-//        memory_error();
-//    }
     char *convert_buff = (char *) malloc(sizeof(char) * 20);
     if (convert_buff == NULL) {
             memory_error();
@@ -309,7 +389,6 @@ int create_departments_option(departments_option** dep,FILE* file) {
     fscanf(file, "%s", (*dep)->heap_type);
     fscanf(file, "%s", (*dep)->data_type);
     parse_time(file,&tm_struct);
-//    print_date_time(&tm_struct);
     (*dep)->start_date_time = mktime(&tm_struct);
     parse_time(file,&tm_struct);
     (*dep)->end_date_time = mktime(&tm_struct);
@@ -370,14 +449,13 @@ void set_min_in_binom_heap(binomial_heap* binom_heap){
     binomial_node* carriage_node = binom_heap->last_node;
     while(carriage_node != NULL){
         if (binom_heap->max->priority < carriage_node->priority){
-            binom_heap->max = carriage_node; // проверить
+            binom_heap->max = carriage_node;
         }
         else if (binom_heap->max->priority == carriage_node->priority){
             if (binom_heap->max->date_time > carriage_node->date_time){
                 binom_heap->max = carriage_node;
             }
         }
-// сравнение по времени done
         carriage_node = carriage_node->next;
     }
 }
@@ -407,7 +485,7 @@ void check_ranks_and_merge(binomial_heap* binom_heap){
                    }
                    tmp = next_copy;
                }
-            } //нужно добавить сравнения времени. done
+            }
 
             else {
                 merge_binomial_nodes(tmp, tmp->next);
@@ -455,7 +533,6 @@ void add_elem_to_binomial_heap(unsigned int priority,time_t date_time,unsigned i
             binom_heap->max = node;
         }
     }
-// cюда добавить при одинаковых значениях сравнивать время  done
     binom_heap->last_node->previous = node;
     node->next = binom_heap->last_node;
     node->previous = NULL;
@@ -492,7 +569,7 @@ void merge_binomial_heaps_inside(binomial_heap* binom_heap, binomial_node* node2
                     break;
                 }
                 tmp1 = tmp1->next;
-            }// сравнение по времени
+            }
             else if (tmp1->priority == tmp2->priority) {
                 if (tmp1->date_time <= tmp2->date_time) {
                     tmp2->next = NULL;
@@ -540,9 +617,6 @@ void merge_binomial_heaps_inside(binomial_heap* binom_heap, binomial_node* node2
                 tmp1->previous = NULL;
                 tmp1->next = NULL;
                 merge_binomial_nodes(tmp2, tmp1);
-//                if (tmp1 == binom_heap->max){
-//                    binom_heap->max = tmp2;
-//                }
                 if (tmp1 == binom_heap->last_node) {
                     binom_heap->last_node = tmp2;
                 }
@@ -698,7 +772,6 @@ void set_max_in_fibonacci_heap(fibonacci_heap* heap){
     }
 }
 unsigned int merge_fibonacci_nodes(fibonacci_node* node1, fibonacci_node* node2,fibonacci_node** buff){
-//    printf("merge");
     unsigned int last_index;
     fibonacci_node* tmp = NULL;
     if (node1->priority < node2->priority){
@@ -717,8 +790,6 @@ unsigned int merge_fibonacci_nodes(fibonacci_node* node1, fibonacci_node* node2,
     node1->rank++;
     if (node1->sons == NULL){
         node1->sons = node2;
-//        node1->sons->previous = NULL;
-//        node1->sons->next = NULL;
     }
     else{
         tmp = node1->sons;
@@ -730,8 +801,6 @@ unsigned int merge_fibonacci_nodes(fibonacci_node* node1, fibonacci_node* node2,
         node2->next = NULL;
     }
     buff[node1->rank-1] = NULL;
-//    node1->next = NULL;
-//    node1->previous = NULL;
     if (buff[node1->rank] != NULL){
         return merge_fibonacci_nodes(node1,buff[node1->rank],buff);
     }
@@ -803,20 +872,15 @@ void remove_elem_from_fibonacci_heap(fibonacci_node* node,fibonacci_heap* heap){
             if (last_index < carriage_node->rank) {
                 last_index = carriage_node->rank;
             }
-//            carriage_node->next = NULL;
-//            carriage_node->previous = NULL;
             buff[carriage_node->rank] = carriage_node;
         }
         carriage_node = tmp_previous;
     }
     heap->last_node = buff[last_index];
-//    heap->last_node->next = NULL;
-//    heap->last_node->previous = NULL;
     carriage_node = heap->last_node;
     if (last_index != 0) {
         unsigned int i = last_index - 1;
         while (1) {
-//            printf("while");
             if (buff[i] != NULL) {
                 carriage_node->previous = buff[i];
                 buff[i]->next = carriage_node;
@@ -885,7 +949,7 @@ leftist_heap* create_leftist_heap(){
 void* create_leftist_heap_interface(){
     return create_leftist_heap();
 }
-leftist_node* merge_leftist_heaps_inside(leftist_node** node1, leftist_node** node2) { // что если будет ситуация merge узла и end
+leftist_node* merge_leftist_heaps_inside(leftist_node** node1, leftist_node** node2) {
     if (*node1 == NULL){
         return  *node2;
     }
@@ -908,7 +972,6 @@ leftist_node* merge_leftist_heaps_inside(leftist_node** node1, leftist_node** no
     }
     (*node1)->right = merge_leftist_heaps_inside(&((*node1)->right),node2);
     (*node1)->npl = (*node1)->right->npl +1;
-//    leftist_node* tmp2 = NULL;
     if ((*node1)->left == NULL){
         tmp = (*node1)->right;
         (*node1)->right = NULL;
@@ -938,8 +1001,8 @@ void add_elem_to_leftist_heap(unsigned int priority, time_t date_time,unsigned i
     }
     node->priority = priority;
     node->date_time = date_time;
-    node->left = NULL; //heap->end;
-    node->right = NULL; //heap->end;
+    node->left = NULL;
+    node->right = NULL;
     node->application_id = appln_id;
     node->npl = 0;
     strcpy(node->application_text,application_text);
@@ -1224,7 +1287,7 @@ void allocate_memory_for_data(void*** data){
         if (((*data)[i]) == NULL){
             memory_error();
         }
-        *((unsigned int*)(*data)[i]) = 0; // TODO как может быть сравнение с 0 если есть current size
+        *((unsigned int*)(*data)[i]) = 0;
     }
 }
 hash_table* create_hash_table() {
@@ -1539,7 +1602,6 @@ void insert_into_trie_inside(unsigned int dep_num,unsigned int count,unsigned in
     }
     unsigned int index = count%10;
     count = count/10;
-    //TODO сделать счетчик и инсерт модом done
     insert_into_trie_inside(dep_num,count,capacity,ptr,&(*node)->array[index]);
 }
 void insert_into_trie(unsigned int dep_num,unsigned int capacity,void* ptr,trie* tree){
@@ -1612,7 +1674,6 @@ departments* create_departments(departments_option* dep_ops){
     dep->heap_context->create_heap = NULL;
     dep->heap_context->add_elem_to_heap = NULL;
     dep->log_file = fopen("log_file.txt","w");
-//    dep->structure_for_heaps; // сделать для хеша и тд
     switch(heap_type_recog(dep_ops)){
         case BinaryHeap:
             dep->heap_context->create_heap = create_binary_heap_interface;
@@ -1687,12 +1748,10 @@ departments* create_departments(departments_option* dep_ops){
     unsigned int capacity;
     unsigned int department_number = 0;
     for (int i = 0; i < dep_ops->departments_quantity; i++){
-        department_number++;
-//        department_number = rand();
+        department_number = rand()%10;
         dep->departments_numbers[i] = department_number;
         capacity = dep_ops->overload_coefficient*dep_ops->operators_quantity[i];
         dep->struct_context->insert(department_number,capacity,dep->heap_context->create_heap(),dep->struct_context->strct);
-//        TODO рассчитать количество разрешенных сообщений в зависимости от кол-во операторов
     }
     return dep;
 }
@@ -1724,126 +1783,10 @@ int check_overload(void** data){
     }
     return 0;
 }
-//void add_applications_to_departments(departments* dep,char** file_with_applications,int file_count) {
-//    time_t apl_date_time;
-//    unsigned int priority = 0;
-//    unsigned int department_number = 0;
-//    int size = 10;
-//    struct tm* time_info;
-//    char date_time[21];
-//    char *application_text = (char *) malloc(sizeof(char) * size);
-//    FILE *file;
-//    struct tm *tm_struct = (struct tm *) malloc(sizeof(struct tm));
-//    FILE* log_file = dep->log_file;
-//    if ((tm_struct == NULL) || (application_text == NULL)) {
-//        memory_error();
-//    }
-//    unsigned int application_id_count = 0;
-//    void** data = NULL;
-//    int i = 3;
-//    char a;
-//    while (i < file_count) {
-//        file = fopen(file_with_applications[i], "r");
-//        while (1) {
-//            application_id_count++;
-//            parse_time(file, tm_struct);
-//            if (tm_struct->tm_year < 0){
-//                break;
-//            }
-//            apl_date_time = mktime(tm_struct);
-//            fscanf(file, "%u", &priority);
-//            fscanf(file, "%u", &department_number);
-//            write_application_text(file, &application_text, &size);
-//            if ((apl_date_time >= dep->options->start_date_time) && (apl_date_time <= dep->options->end_date_time)) {
-//                if (priority < dep->options->max_priority) {
-//                    if ((data = dep->struct_context->get_struct_data(department_number, dep->struct_context->strct)) != NULL) {
-//                        time_info = localtime(&apl_date_time);
-//                        strftime(date_time,sizeof(date_time),"%Y-%m-%d %H:%M:%S",time_info);
-//                        if (!check_overload(data)){
-//                            fprintf(log_file,"%s NEW_REQUEST application №%u was received by department №%u\n",date_time,application_id_count,department_number);
-//                            dep->heap_context->add_elem_to_heap(priority,apl_date_time,application_id_count,application_text,data[0]);
-//                            (*((unsigned int*)data[3]))++;  // application_quantity++;
-//                        }
-//                        else{
-//                            for (int t = 0; t < dep->options->departments_quantity;t++){
-//                                data = dep->struct_context->get_struct_data(dep->departments_numbers[i],dep->struct_context->strct);
-//                                if(!check_overload(data)){
-//                                    (*((unsigned int*)data[3]))++;
-//                                    dep->heap_context->add_elem_to_heap(priority,apl_date_time,application_id_count,application_text,data[0]);
-//                                    fprintf(log_file,"%s DEPARTMENT_OVERLOADED application №%u was received by department №%u and overloaded, application was sent to department №%u\n",date_time,application_id_count,department_number,*((unsigned int*)data[1]));
-//                                    break;
-//                                }
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//        i++;
-//        fclose(file);
-//    }
-//
-//}
-
-
-void random_operator_name(char* name){
-    srand(time(NULL));
-    for(int i = 0; i < 9;i++){
-        name[i] = rand()%25 + 65;
-    }
-    name[9] = '\0';
-}
-//void start_work(departments* deps){
-//    unsigned int deps_quantity = deps->options->departments_quantity;
-//    time_t application_time[deps_quantity];
-//    char operators_name[deps_quantity][10];
-//    void** data = NULL;
-//    struct tm* time_info;
-//    char date_time[21];
-//    FILE* log_file = deps->log_file;
-//    unsigned int appln_id;
-//    deps->current_time += 60;
-//    for (int i = 0; i < deps_quantity; i++){
-//        application_time[i] = deps->options->end_date_time;
-//        data = deps->struct_context->get_struct_data(deps->departments_numbers[i],deps->struct_context->strct);
-//        appln_id = deps->heap_context->get_max_appln_id(data[0]);
-//        if (appln_id != 0){
-//            application_time[i] = deps->current_time+rand()%621;
-//            random_operator_name(operators_name[i]);
-//            time_info = localtime(&deps->current_time);
-//            strftime(date_time,sizeof(date_time),"%Y-%m-%d %H:%M:%S",time_info);
-//            fprintf(log_file,"%s REQUEST_HANDLING_STARTED application № %u handled by operator %s department № %u\n",date_time,appln_id,operators_name[i],*((unsigned int*)data[1]));
-//        }
-//    }
-//    while ((deps->current_time += 60) < deps->options->end_date_time){
-//        for (int i = 0; i < deps_quantity; i++){
-//            if (application_time[i] <=  deps->current_time){
-//                time_info = localtime(&(application_time[i]));
-//                strftime(date_time,sizeof(date_time),"%Y-%m-%d %H:%M:%S",time_info);
-//                data = deps->struct_context->get_struct_data(deps->departments_numbers[i],deps->struct_context->strct);
-//                appln_id = deps->heap_context->get_max_appln_id(data[0]);
-//                fprintf(log_file, "%s REQUEST_HANDLING_FINISHED work on application № %u finished by operator %s department № %u\n",
-//                        date_time, appln_id, operators_name[i],*((unsigned int*)data[1]));
-//                deps->heap_context->remove_max(data[0]);
-//                appln_id = deps->heap_context->get_max_appln_id(data[0]);
-//                if (appln_id != 0){
-//                    random_operator_name(operators_name[i]);
-//                    fprintf(log_file,"%s REQUEST_HANDLING_STARTED application № %u handled by operator %s department № %u\n",date_time,appln_id,operators_name[i],*((unsigned int*)data[1]));
-//                }
-//                else{
-//                    application_time[i] = deps->options->end_date_time;
-//                }
-//            }
-//        }
-//    }
-//    fclose(log_file);
-//
-//}
 
 void get_application(FILE** file,int* file_index,int argc,char** argv,application* appln,departments* deps,unsigned int* application_count){
     struct tm tmp;
-    parse_time(*file, &tmp);
-    if (tmp.tm_year < 0){
+    if (parse_time(*file, &tmp)){
         fclose(*file);
         (*file_index)++;
         if (*file_index < argc){
@@ -1869,7 +1812,6 @@ void get_application(FILE** file,int* file_index,int argc,char** argv,applicatio
     }
 }
 void start_work(departments* deps,int argc,char** argv){
-    srand(time(NULL));
     application appln;
     appln.appln_text = NULL;
     appln.text_size = 0;
@@ -1878,7 +1820,6 @@ void start_work(departments* deps,int argc,char** argv){
     void** dep_data;
     unsigned int application_count = 0;
     application_lite applications_in_process[deps->options->departments_quantity];
-//    char operators_name[deps->options->departments_quantity][10];
     FILE* file = fopen(argv[file_index],"r");
     get_application(&file,&file_index,argc,argv,&appln,deps,&application_count);
     for (int i = 0; i < deps->options->departments_quantity; i++){
@@ -1920,7 +1861,7 @@ void start_work(departments* deps,int argc,char** argv){
             dep_data = deps->struct_context->get_struct_data(deps->departments_numbers[i],deps->struct_context->strct);
             if (applications_in_process[i].end_date_time == 0){
                 if ((appln_id = deps->heap_context->get_max_appln_id(dep_data[0])) != 0){
-                    applications_in_process[i].end_date_time = deps->current_time + rand()%600;
+                    applications_in_process[i].end_date_time = deps->current_time + rand()%deps->options->max_processing_time + deps->options->min_processing_time;
                     applications_in_process[i].appln_id = appln_id;
                     random_operator_name(applications_in_process[i].operator_name);
                     write_date_time(deps->current_time,log_file);
