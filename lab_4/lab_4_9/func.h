@@ -6,6 +6,7 @@
 #include<string.h>
 #include<time.h>
 #include<math.h>
+#include<ctype.h>
 typedef struct {
     void* (*create_heap)();
     void (*add_elem_to_heap)(unsigned int,time_t,unsigned int,char*,void*);
@@ -62,8 +63,8 @@ typedef struct{
     unsigned int application_id;
 } binary_heap_node;
 typedef struct{
-    unsigned int size;
-    unsigned int current_size;
+    int size;
+    int current_size;
     binary_heap_node* heap;
 } binary_heap;
 
@@ -275,7 +276,7 @@ void delete_treap_heap_interface(void* heap);
 
 int check_files(int argc, char** argv);
 int str_to_int(char* str, int* num);
-
+void generate(FILE* file);
 
 departments* create_departments(departments_option* dep_ops);
 void start_work(departments* deps,int argc,char** argv);

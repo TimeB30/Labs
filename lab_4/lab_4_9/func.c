@@ -42,18 +42,50 @@ enum heap_data_types heap_type_recog(departments_option* dep){
     }
     return None;
 }
-
-
+void write_date_time(time_t date_time,FILE* log_file){
+    char date_time_str[21];
+    struct tm* time_info;
+    time_info = localtime(&date_time);
+    strftime(date_time_str,sizeof(date_time_str),"%Y-%m-%d %H:%M:%S ",time_info);
+    fprintf(log_file,"%s ",date_time_str);
+}
+void generate(FILE* file){
+    if (file == NULL){
+        return;
+    }
+    srand(time(NULL));
+    char heaps[6][15] = {"BinaryHeap\0","BinomialHeap\0","FibonacciHeap\0","SkewHeap\0","LeftistHeap\0","Treap\0"};
+    char structs[4][18] = {"HashSet\0","DynamicArray\0","BinarySearchTree\0","Trie\0"};
+    time_t start_time = 1711918800 + rand()%518000;
+    time_t end_time = start_time + rand()%518000;
+    int min_process_time = rand()%5+1;
+    int max_process_time = min_process_time + rand()%10+1;
+    int dep_quantity = rand()%20 + 1;
+    int operators_quantity[dep_quantity];
+    for (int i = 0; i < dep_quantity; i++){
+        operators_quantity[i] = rand()%20+1;
+    }
+    double overload_coefficient = 1 + (double)(rand()%100)/(double)((rand()%100)+100);
+    fprintf(file,"%s\n%s\n",heaps[rand()%6],structs[rand()%4]);
+    write_date_time(start_time,file);
+    fprintf(file,"\n");
+    write_date_time(end_time,file);
+    fprintf(file,"\n%d\n%d\n%d\n",min_process_time,max_process_time,dep_quantity);
+    for(int i = 0; i < dep_quantity; i++){
+        fprintf(file,"%d ",operators_quantity[i]);
+    }
+    fprintf(file,"\n%f",overload_coefficient);
+}
 
 
 int str_to_int(char* str,int* num){
-    char* end;
+    char* end = NULL;
     *num = strtol(str,&end,10);
     const int error = errno == ERANGE;
     if (error){
         return 1;
     }
-    else if (end[0] != 0){
+    else if (end[0] != '\0'){
         return 1;
     }
     return 0;
@@ -203,7 +235,9 @@ void merge_binary_heaps_interface(void* heap1, void* heap2){
 }
 void delete_binary_heap(binary_heap* heap){
     for (int i = 0; i <= heap->current_size; i++){
-        free(heap->heap[i].application_text);
+        if (heap->heap[i].application_text != NULL) {
+            free(heap->heap[i].application_text);
+        }
     }
     free(heap->heap);
     heap->heap = NULL;
@@ -223,7 +257,7 @@ unsigned int get_binary_max_appln_id_interface(void* heap){
     return get_binary_max_appln_id((binary_heap*)heap);
 }
 void remove_binary_max(binary_heap* b_heap){
-    if (b_heap->current_size == -1){
+    if (b_heap->current_size == 0){
         return;
     }
     b_heap->heap[0] = b_heap->heap[b_heap->current_size];
@@ -231,7 +265,7 @@ void remove_binary_max(binary_heap* b_heap){
     siftDown(b_heap,0);
 }
 binary_heap_node* get_max_binary_heap(binary_heap* b_heap){
-    if (b_heap->current_size > -1){
+    if (b_heap->current_size > 0){
         return &b_heap->heap[0];
     }
     return NULL;
@@ -1753,6 +1787,7 @@ int check_overload(void** data){
 
 
 void random_operator_name(char* name){
+    srand(time(NULL));
     for(int i = 0; i < 9;i++){
         name[i] = rand()%25 + 65;
     }
@@ -1833,15 +1868,10 @@ void get_application(FILE** file,int* file_index,int argc,char** argv,applicatio
         get_application(file,file_index,argc,argv,appln,deps,application_count);
     }
 }
-void write_date_time(time_t date_time,FILE* log_file){
-    char date_time_str[21];
-    struct tm* time_info;
-    time_info = localtime(&date_time);
-    strftime(date_time_str,sizeof(date_time_str),"%Y-%m-%d %H:%M:%S ",time_info);
-    fprintf(log_file,"%s ",date_time_str);
-}
 void start_work(departments* deps,int argc,char** argv){
+    srand(time(NULL));
     application appln;
+    appln.appln_text = NULL;
     appln.text_size = 0;
     FILE* log_file = deps->log_file;
     int file_index = 3;
@@ -1908,7 +1938,9 @@ void start_work(departments* deps,int argc,char** argv){
 
         }
     }
-    free(appln.appln_text);
+    if (appln.appln_text != NULL) {
+        free(appln.appln_text);
+    }
 }
 
 void close_department(departments* deps){

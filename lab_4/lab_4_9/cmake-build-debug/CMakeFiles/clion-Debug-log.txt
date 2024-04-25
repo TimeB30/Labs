@@ -1,4 +1,10 @@
-/bin/cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_MAKE_PROGRAM=/snap/clion/265/bin/ninja/linux/x64/ninja -G Ninja -S /home/timeb/Desktop/Labs/lab_4/lab_4_9 -B /home/timeb/Desktop/Labs/lab_4/lab_4_9/cmake-build-debug
+/bin/cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_MAKE_PROGRAM=/snap/clion/274/bin/ninja/linux/x64/ninja -G Ninja -S /home/timeb/Desktop/Labs/lab_4/lab_4_9 -B /home/timeb/Desktop/Labs/lab_4/lab_4_9/cmake-build-debug
+-- The C compiler identification is GNU 11.4.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
 -- Configuring done
 -- Generating done
 -- Build files have been written to: /home/timeb/Desktop/Labs/lab_4/lab_4_9/cmake-build-debug
