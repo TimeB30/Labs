@@ -1758,6 +1758,9 @@ departments* create_departments(departments_option* dep_ops){
 void write_application_text(FILE* file, char** text,unsigned int* size) {
     if (*size == 0){
         *text = (char*)malloc(sizeof(char)*10);
+        if (*text == NULL){
+            memory_error();
+        }
         *size = 10;
     }
     char* tmp;
@@ -1792,7 +1795,6 @@ void get_application(FILE** file,int* file_index,int argc,char** argv,applicatio
         if (*file_index < argc){
             *file = fopen(argv[*file_index],"r");
             if (*file == NULL){
-                printf("fuck");
             }
             get_application(file,file_index,argc,argv,appln,deps,application_count);
         }

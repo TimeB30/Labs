@@ -503,7 +503,7 @@
 				}
 			],
 			"type" : "UNINITIALIZED",
-			"value" : "/snap/clion/274/bin/ninja/linux/x64/ninja"
+			"value" : "/snap/clion/275/bin/ninja/linux/x64/ninja"
 		},
 		{
 			"name" : "CMAKE_MODULE_LINKER_FLAGS",
