@@ -1,0 +1,7 @@
+cmake_minimum_required(VERSION 3.22)
+project(lab4 C)
+set(CMAKE_C_STANDARD  11)
+add_executable(lab4_10 main.c)
+add_library(func SHARED func.h func.c)
+target_link_libraries(lab4_10  PRIVATE func)
+target_link_libraries(func m)
