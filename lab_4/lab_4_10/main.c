@@ -25,27 +25,15 @@ void check_errors(int status){
         printf("You enter not a number\n");
         exit(EXIT_FAILURE);
     }
+    else if (status == -7){
+        printf("Compile error\n");
+    }
 }
-void output(unsigned int num,unsigned int base){
-    if ((base < 2) || (base > 36)){
+void print_string(string* str){
+    if ((str == NULL) || (str->current_size == 0)){
         return;
     }
-    unsigned int mods[33];
-    int i = 0;
-    while(num > 0){
-        mods[i] = num % base;
-        num /= base;
-        i++;
-    }
-    for (int t = i - 1; t >= 0; t--){
-       if (mods[t] < 10){
-           printf("%c",mods[t] + 48);
-       }
-       else {
-           printf("%c",mods[t] + 55);
-       }
-    }
-    printf("\n");
+    printf("%s",str->string);
 }
 int main(int argc, char** argv){
     int status = 0;
@@ -75,7 +63,15 @@ int main(int argc, char** argv){
     add_value_to_trie(str,249,tr,&status);
 //    unsigned int num = input(base_input,&status); // works good
 //    printf("%u\n",num);
-    output(13,2); // works great
-
+//    output(13,2); // works great
+    FILE* file_settings = fopen("settings.txt","r");
+    FILE* run_file = fopen("run.txt","r");
+    operations* ops = create_operations(&status);
+    compile_options* comp_ops = create_compile_options(&status);
+    string* error_message = create_string(&status);
+    apply_settings(ops,comp_ops,file_settings,&status, error_message);
+    run(ops,comp_ops,run_file,0);
+    print_string(error_message);
     return 0;
+
 }

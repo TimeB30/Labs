@@ -1,13 +1,14 @@
 #include<stdio.h>
 
+typedef struct{
+    void* func;
+}command;
 
-
-
+int sum (int a , int b){
+    return a + b;
+}
 int main(){
 
-    unsigned int test = '\0' != 'f';
-//    test = ~test;
-    printf("%u\n",test);
 
 
     return 0;
