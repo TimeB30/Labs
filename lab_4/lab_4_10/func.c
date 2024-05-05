@@ -729,7 +729,7 @@ enum run_errors check_variable(string* variable_name){
     return good_name;
 }
 enum run_errors equation_recog(string* equation,operations* ops, compile_options* comp_ops){
-    
+
 }
 enum run_errors read_line(operations* ops, compile_options* comp_ops,string** buff,FILE* file,unsigned long int* str_index,string* error_message) {
     clear_string(error_message);
@@ -781,7 +781,7 @@ enum run_errors read_line(operations* ops, compile_options* comp_ops,string** bu
                 add_to_string(error_message, '\n');
             } else {
                 add_to_string(str_to_write, letter);
-                //make equation
+                //TODO make equation
 
                 return success;
             }
