@@ -4,6 +4,7 @@
 #include<stdlib.h>
 #include<errno.h>
 #include<string.h>
+#include<ctype.h>
 #define uint_max 4294967295
 enum options{
     prefix,
@@ -26,6 +27,14 @@ enum options{
     change_input,
     change_output,
     in_use,
+};
+enum run_errors{
+    name_error,
+    good_name,
+    success,
+    init,
+    run_error,
+    empty,
 };
 typedef struct{
     unsigned int size;
@@ -68,7 +77,7 @@ unsigned int strtouint(char* str,unsigned int base,int* status);
 operations* create_operations(int* status);
 compile_options* create_compile_options(int* status);
 void apply_settings(operations* ops,compile_options* comp_ops,FILE* file,int* status,string* error_message);
-void run(operations* ops,compile_options* comp_ops,FILE* run_file, int debug_status);
+void run(operations* ops,compile_options* comp_ops,FILE* run_file, int debug_status,string* error_message,trie* variables_data);
 
 void inverse(unsigned int* num);
 unsigned int input_inside(unsigned int base_input,int* status);

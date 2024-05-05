@@ -716,31 +716,102 @@ void apply_settings(operations* ops,compile_options* comp_ops,FILE* file, int* s
     delete_string(buff[1]);
 
 }
-int read_line(operations* ops, compile_options* comp_ops,string** buff,FILE* file){
-    if (file == NULL){
+enum run_errors check_variable(string* variable_name){
+    if ((variable_name->string[0] > 47) && (variable_name->string[0] < 58)){
+        return name_error;
+    }
+    for (int i = 0; i < variable_name->current_size; i++){
+        if (!((isalnum(variable_name->string[i])) || (variable_name->string[i] == '_'))){
+            return name_error;
+        }
+
+    }
+    return good_name;
+}
+enum run_errors equation_recog(string* equation,operations* ops, compile_options* comp_ops){
+    
+}
+enum run_errors read_line(operations* ops, compile_options* comp_ops,string** buff,FILE* file,unsigned long int* str_index,string* error_message) {
+    clear_string(error_message);
+    if (file == NULL) {
         return 0;
     }
     char letter;
     clear_string(buff[0]);
-    clear_string(buff[0]);
-    string* str_to_write = buff[0];
-    while ((letter = fgetc(file)) != '\n'){
-        if (letter == '='){
-            str_to_write = buff[1];
+    clear_string(buff[1]);
+    clear_string(buff[2]);
+    unsigned long int from_letter = 0;
+    string *str_to_write = buff[0];
+    while ((letter = fgetc(file)) != EOF) {
+        if (letter == ' ') {
+            if (from_letter == 1) {
+                if (str_to_write == buff[0]) {
+                    str_to_write = buff[1];
+                    from_letter = 0;
+                }
+            }
             continue;
+        } else if (letter == '\t') {
+            continue;
+        } else if (letter == '\n') {
+            (*str_index)++;
+            continue;
+        } else if (letter == '=') {
+            if (str_to_write == buff[0]) {
+                str_to_write = buff[1];
+            } else if (buff[1]->current_size > 0) {
+                add_to_string_string(error_message, "Error: wrong variable name at  line: ");
+                add_number_to_string(error_message, *str_index);
+                add_to_string(error_message, '\n');
+                return run_error;
+            }
+            add_to_string(str_to_write, letter);
+            str_to_write = buff[2];
+            continue;
+        } else if (letter == ';') {
+            if ((buff[1]->current_size == 0) && (buff[2]->current_size == 0)) {
+                return init;
+            } else if ((buff[2]->current_size > 0) && (buff[1]->current_size == 0)) {
+                add_to_string_string(error_message, "Error: expected = at  line: ");
+                add_number_to_string(error_message, *str_index);
+                add_to_string(error_message, '\n');
+            } else if ((buff[1]->current_size > 0) && (buff[2]->current_size == 0)) {
+                add_to_string_string(error_message, "Error: expected rvalue at  line: ");
+                add_number_to_string(error_message, *str_index);
+                add_to_string(error_message, '\n');
+            } else {
+                add_to_string(str_to_write, letter);
+                //make equation
+
+                return success;
+            }
+            break;
         }
-        add_to_string(str_to_write,letter);
+        from_letter = 1;
+        add_to_string(str_to_write, letter);
+
     }
-    return 1;
+    return empty;
 }
-void run(operations* ops,compile_options* comp_ops,FILE* run_file, int debug_status){
+
+void run(operations* ops,compile_options* comp_ops,FILE* run_file, int debug_status,string* error_message,trie* variables_data){
+    unsigned long int str_index = 1;
+    clear_string(error_message);
     if (run_file == NULL){
         return ;
     }
     int status;
-    string* buff[2] = {create_string(&status), create_string(&status)};
-    read_line(ops,comp_ops,buff,run_file);
-    if (buff[1]->current_size > 0){
-        if (buff[1]->string[buff[1]->current_size-1] != )
-    }
+    string* buff[3] = {create_string(&status), create_string(&status),create_string(&status)};
+        switch (read_line(ops,comp_ops,buff,run_file,&str_index,error_message)) {
+            case run_error:
+                return;
+            case init:
+                printf("init\n");
+                break;
+            case success:
+                break;
+            case empty:
+                printf("empty file\n");
+        }
+
 }
