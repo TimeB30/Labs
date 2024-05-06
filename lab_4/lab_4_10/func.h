@@ -35,6 +35,7 @@ enum run_errors{
     init,
     run_error,
     empty,
+    too_many_arguments,
 };
 typedef struct{
     unsigned int size;
@@ -46,7 +47,8 @@ typedef struct{
     string* name;
     int is_binary;
     int priority;
-    unsigned int  (*func)(void*, void*,void*);
+//    unsigned int  (*func)(unsigned int, unsigned int,int*);
+    void* func;
 }operation;
 typedef struct{
     int operations_count;
@@ -77,7 +79,7 @@ unsigned int strtouint(char* str,unsigned int base,int* status);
 operations* create_operations(int* status);
 compile_options* create_compile_options(int* status);
 void apply_settings(operations* ops,compile_options* comp_ops,FILE* file,int* status,string* error_message);
-void run(operations* ops,compile_options* comp_ops,FILE* run_file, int debug_status,string* error_message,trie* variables_data);
+void run(operations* ops,compile_options* comp_ops,FILE* run_file, int debug_status,string* error_message,trie* variables_data,unsigned int base_assign, unsigned int base_input,unsigned int base_output);
 
 void inverse(unsigned int* num);
 unsigned int input_inside(unsigned int base_input,int* status);
@@ -87,28 +89,28 @@ unsigned int  output_inside(unsigned int num,unsigned int base);
 void get_settings(FILE* file,unsigned int base_assign, unsigned int base_input, unsigned int base_output);
 
 
-unsigned int add_inside(unsigned int num1, unsigned int num2,int* status);
-unsigned int mult_inside(unsigned int num1, unsigned int num2,int* status);
-unsigned int sub_inside(unsigned int num1, unsigned int num2, int* status);
-unsigned int mod_pow_inside(unsigned int base, unsigned int exp, int* status);
-unsigned int my_div_inside(unsigned int num1, unsigned int num2, int* status);
-unsigned int rem_inside(unsigned int num1, unsigned int num2, int* status);
-unsigned int xor_inside(unsigned int num1, unsigned int num2, int* status);
-unsigned int and_inside(unsigned int num1, unsigned int num2, int* status);
-unsigned int or_inside(unsigned int num1, unsigned int num2,int* status);
-unsigned int initialize_inside(string* new_name, trie* tr,int* value);
-unsigned int not_inside(unsigned int num1, unsigned int num2,int* status);
+unsigned int add(unsigned int num1, unsigned int num2,int* status);
+unsigned int mult(unsigned int num1, unsigned int num2,int* status);
+unsigned int sub(unsigned int num1, unsigned int num2, int* status);
+unsigned int mod_pow(unsigned int base, unsigned int exp, int* status);
+unsigned int my_div(unsigned int num1, unsigned int num2, int* status);
+unsigned int rem(unsigned int num1, unsigned int num2, int* status);
+unsigned int xor(unsigned int num1, unsigned int num2, int* status);
+unsigned int and(unsigned int num1, unsigned int num2, int* status);
+unsigned int or(unsigned int num1, unsigned int num2,int* status);
+unsigned int initialize(string* new_name, trie* tr,int* value);
+unsigned int not(unsigned int num1, unsigned int num2,int* status);
 
-
-unsigned int add(void* num1, void* num2,void* status);
-unsigned int mult(void* num1, void* num2,void* status);
-unsigned int sub(void* num1, void* num2,void* status);
-unsigned int mod_pow(void* base, void* exp, void* status);
-unsigned int my_div(void* num1, void* num2,void* status);
-unsigned int rem(void* num1, void* num2,void* status);
-unsigned int xor(void* num1, void* num2,void* status);
-unsigned int and(void* num1, void* num2,void* status);
-unsigned int or(void* num1, void* num2,void* status);
-unsigned int initialize(void* name, void* tr,void* value);
-unsigned int not(void* num1, void* num2,void* status);
+//
+//unsigned int add(void* num1, void* num2,void* status);
+//unsigned int mult(void* num1, void* num2,void* status);
+//unsigned int sub(void* num1, void* num2,void* status);
+//unsigned int mod_pow(void* base, void* exp, void* status);
+//unsigned int my_div(void* num1, void* num2,void* status);
+//unsigned int rem(void* num1, void* num2,void* status);
+//unsigned int xor(void* num1, void* num2,void* status);
+//unsigned int and(void* num1, void* num2,void* status);
+//unsigned int or(void* num1, void* num2,void* status);
+//unsigned int initialize(void* name, void* tr,void* value);
+//unsigned int not(void* num1, void* num2,void* status);
 #endif

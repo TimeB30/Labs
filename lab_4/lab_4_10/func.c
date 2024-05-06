@@ -234,28 +234,28 @@ unsigned int output(void* num, void* base, void* not_used){
 unsigned int input(void* base,void* not_used, void* status){
     return input_inside(*((unsigned int*)base),(int*)status);
 }
-unsigned int  add_inside(unsigned int num1, unsigned int num2,int* status){
+unsigned int  add(unsigned int num1, unsigned int num2,int* status){
     if (num1 > uint_max - num2){
         *status = 8;
         return num1;
     }
     return num1 + num2;
 }
-unsigned int mult_inside(unsigned int num1, unsigned int num2,int* status){
+unsigned int mult(unsigned int num1, unsigned int num2,int* status){
     if ((num2 != 0) && (num1 < (uint_max / num2))){
         return num1 * num2;
     }
     *status = 8;
     return num1;
 }
-unsigned int sub_inside(unsigned int num1, unsigned int num2, int* status){
+unsigned int sub(unsigned int num1, unsigned int num2, int* status){
     if ((num2 > num1)){
         *status = 8;
         return 0;
     }
     return num1 - num2;
 }
-unsigned int mod_pow_inside(unsigned int base, unsigned int exp, int* status){
+unsigned int mod_pow(unsigned int base, unsigned int exp, int* status){
     unsigned int result = 1;
     while (exp > 0){
         if (exp % 2 == 1){
@@ -266,69 +266,69 @@ unsigned int mod_pow_inside(unsigned int base, unsigned int exp, int* status){
     }
     return result;
 }
-unsigned int my_div_inside(unsigned int num1, unsigned int num2, int* status){
+unsigned int my_div(unsigned int num1, unsigned int num2, int* status){
     if (num2 == 0){
         *status = 0;
         return 0;
     }
     return num1/num2;
 }
-unsigned int rem_inside(unsigned int num1, unsigned int num2, int* status){
+unsigned int rem(unsigned int num1, unsigned int num2, int* status){
     if (num2 == 0){
         *status = 0;
         return 0;
     }
     return num1%num2;
 }
-unsigned int xor_inside(unsigned int num1, unsigned int num2, int* status){
+unsigned int xor(unsigned int num1, unsigned int num2, int* status){
     return (num1 ^ num2);
 }
-unsigned int and_inside(unsigned int num1, unsigned int num2, int* status){
+unsigned int and(unsigned int num1, unsigned int num2, int* status){
     return num1 & num2;
 }
-unsigned int or_inside(unsigned int num1, unsigned int num2,int* status){
+unsigned int or(unsigned int num1, unsigned int num2,int* status){
     return num1 | num2;
 }
-unsigned int initialize_inside(string* name,trie* tr,int* value){
+unsigned int initialize(string* name,trie* tr,int* value){
     add_value_to_trie(name,*value,tr,0);
     return 0;
 }
-unsigned int not_inside(unsigned int num1, unsigned int num2,int* status){
+unsigned int not(unsigned int num1, unsigned int num2,int* status){
     return ~num1;
 }
-unsigned int add(void* num1, void* num2,void* status){
-     return add_inside(*((unsigned int*)num1),*((unsigned int*)num2),(int*)status);
-}
-unsigned int mult(void* num1, void* num2,void* status){
-    return mult_inside(*((unsigned int*)num1),*((unsigned int*)num2),(int*)status);
-}
-unsigned int sub(void* num1, void* num2,void* status){
-    return sub_inside(*((unsigned int*)num1),*((unsigned int*)num2),(int*)status);
-}
-unsigned int mod_pow(void* base, void* exp, void* status){
-    return mod_pow_inside(*((unsigned int*)base),*((unsigned int*)exp),(int*)status);
-}
-unsigned int my_div(void* num1, void* num2,void* status){
-    return my_div_inside(*((unsigned int*)num1),*((unsigned int*)num2),(int*)status);
-}
-unsigned int rem(void* num1, void* num2,void* status){
-    return rem_inside(*((unsigned int*)num1),*((unsigned int*)num2),(int*)status);
-}
-unsigned int xor(void* num1, void* num2,void* status){
-    return xor_inside(*((unsigned int*)num1),*((unsigned int*)num2),(int*)status);
-}
-unsigned int and(void* num1, void* num2,void* status){
-    return and_inside(*((unsigned int*)num1),*((unsigned int*)num2),(int*)status);
-}
-unsigned int or(void* num1, void* num2,void* status){
-    return or_inside(*((unsigned int*)num1),*((unsigned int*)num2),(int*)status);
-}
-unsigned int initialize(void* new_name, void* tr,void* value){
-    return initialize_inside((string*)new_name,(trie*)tr,(int*)value);
-}
-unsigned int not(void* num1, void* num2,void* status){
-    return not_inside(*((unsigned int*)num1),1,NULL);
-}
+//unsigned int add(void* num1, void* num2,void* status){
+//     return add_inside(*((unsigned int*)num1),*((unsigned int*)num2),(int*)status);
+//}
+//unsigned int mult(void* num1, void* num2,void* status){
+//    return mult_inside(*((unsigned int*)num1),*((unsigned int*)num2),(int*)status);
+//}
+//unsigned int sub(void* num1, void* num2,void* status){
+//    return sub_inside(*((unsigned int*)num1),*((unsigned int*)num2),(int*)status);
+//}
+//unsigned int mod_pow(void* base, void* exp, void* status){
+//    return mod_pow_inside(*((unsigned int*)base),*((unsigned int*)exp),(int*)status);
+//}
+//unsigned int my_div(void* num1, void* num2,void* status){
+//    return my_div_inside(*((unsigned int*)num1),*((unsigned int*)num2),(int*)status);
+//}
+//unsigned int rem(void* num1, void* num2,void* status){
+//    return rem_inside(*((unsigned int*)num1),*((unsigned int*)num2),(int*)status);
+//}
+//unsigned int xor(void* num1, void* num2,void* status){
+//    return xor_inside(*((unsigned int*)num1),*((unsigned int*)num2),(int*)status);
+//}
+//unsigned int and(void* num1, void* num2,void* status){
+//    return and_inside(*((unsigned int*)num1),*((unsigned int*)num2),(int*)status);
+//}
+//unsigned int or(void* num1, void* num2,void* status){
+//    return or_inside(*((unsigned int*)num1),*((unsigned int*)num2),(int*)status);
+//}
+//unsigned int initialize(void* new_name, void* tr,void* value){
+//    return initialize_inside((string*)new_name,(trie*)tr,(int*)value);
+//}
+//unsigned int not(void* num1, void* num2,void* status){
+//    return not_inside(*((unsigned int*)num1),1,NULL);
+//}
 void get_settings(FILE* file,unsigned int base_assign, unsigned int base_input, unsigned int base_output){
     if (file == NULL){
         return;
@@ -364,8 +364,9 @@ operations* create_operations(int* status){
     }
     ops->ops[0].func = add;
     ops->ops[0].priority = 4;
+    ops->ops[0].is_binary = 1; // TODO дописать для всех
     add_to_string_string(ops->ops[0].realname,"add");
-    add_to_string_string(ops->ops[0].name,"N");
+    add_to_string_string(ops->ops[0].name,"add");
     ops->ops[1].func = mult;
     ops->ops[1].priority = 5;
     add_to_string_string(ops->ops[1].realname,"mult");
@@ -398,7 +399,7 @@ operations* create_operations(int* status){
     ops->ops[8].priority = 1;
     add_to_string_string(ops->ops[8].realname,"or");
     add_to_string_string(ops->ops[8].name,"N");
-    ops->ops[9].func = initialize;
+    ops->ops[9].func = add; //TODO warning это временно чтоб компилятор мозги не ебал  был init
     ops->ops[9].priority = 0;
     add_to_string_string(ops->ops[9].realname,"=");
     add_to_string_string(ops->ops[9].name,"N");
@@ -406,11 +407,11 @@ operations* create_operations(int* status){
     ops->ops[10].priority = 7;
     add_to_string_string(ops->ops[10].realname,"not");
     add_to_string_string(ops->ops[10].name,"N");
-    ops->ops[11].func = input;
+    ops->ops[11].func = add; //TODO warning это временно чтоб компилятор мозги не ебал  был input
     ops->ops[11].priority = 1;
     add_to_string_string(ops->ops[11].realname,"input");
     add_to_string_string(ops->ops[11].name,"N");
-    ops->ops[12].func = output;
+    ops->ops[12].func = add; //TODO warning это временно чтоб компилятор мозги не ебал  был output
     ops->ops[12].priority = 0;
     add_to_string_string(ops->ops[12].realname,"output");
     add_to_string_string(ops->ops[12].name,"N");
@@ -728,10 +729,97 @@ enum run_errors check_variable(string* variable_name){
     }
     return good_name;
 }
-enum run_errors equation_recog(string* equation,operations* ops, compile_options* comp_ops){
+operation * get_op_info(string* func_name,operations* ops){
+    for (int i = 0; i < 13; i++){
+        if (!strcmp(func_name->string,ops->ops[i].name->string)){
+            return &(ops->ops[i]);
+        }
+    }
+    return NULL;
+};
+unsigned int  equation_recog(string* equation,operations* ops, compile_options* comp_ops,unsigned int base_assign, unsigned int base_input,unsigned int base_output,unsigned int* i,int* status,int* after_func,int is_binary,int comma_count){
+    string* buff_str = create_string(&status);
+    operation* op;
+    unsigned int answer;
+    unsigned int num = 0;
+    int after_func2 = 0;
+    int comma_count2 = 0;
+    while (*i < equation->current_size){
+        if ((equation->string[*i] == '(')){
+            op = get_op_info(buff_str,ops);
+            if (op == NULL){
+                *status = -1;
+                break;
+            }
+            else{
+                *after_func = 1;
+                (*i)++;
+                if (op->is_binary){
+                    answer =  ((unsigned int (*) (unsigned int, unsigned int, int*))op->func)(equation_recog(equation,ops,comp_ops,base_assign,base_input,base_output,i,status,&after_func2,1,comma_count2),equation_recog(equation,ops,comp_ops,base_assign,base_input,base_output,i,status,&after_func2,1,comma_count2),status);
 
+                }
+                else{
+                    answer = ((unsigned int (*) (unsigned int, int*))op->func)(equation_recog(equation,ops,comp_ops,base_assign,base_input,base_output,i,status,&after_func2,0,comma_count2),status);
+                }
+                return answer;
+            }
+
+        }
+        else if (equation->string[*i] == ','){
+            comma_count++; //TODO наверное если после завершения программы i < current_size значит было передано больше параметров чем 1 или 2  проверить!
+            if (is_binary) {
+                if (*after_func) {
+                    *after_func = 0;
+                    clear_string(buff_str);
+                    (*i)++;
+                    continue;
+                } else {
+                    (*i)++;
+                    answer = strtouint(buff_str->string, base_assign, status);
+                    if (status < 0) {
+                        return 1;
+                    } else {
+                        return answer;
+                    }
+                }
+            }
+            else {
+                *status = -1;
+                return 0;
+            }
+        }
+        else if (equation->string[*i] == ')'){
+            if (*after_func) {
+                (*i)++;
+                clear_string(buff_str);
+                continue;
+            }
+            else {
+                (*i)++;
+                answer = strtouint(buff_str->string,base_assign,status);
+                if (status < 0){
+                    return 1;
+                }
+                else {
+                    return answer;
+                }
+            }
+
+        }
+        add_to_string(buff_str,equation->string[*i]);
+        (*i)++;
+    }
+    if (buff_str->current_size > 0){
+        return answer;
+    }
+    answer = strtouint(equation->string,base_assign,status);
+    if (status < 0){
+        return 1;
+    }
+    *status = 0;
+    return answer;
 }
-enum run_errors read_line(operations* ops, compile_options* comp_ops,string** buff,FILE* file,unsigned long int* str_index,string* error_message) {
+enum run_errors read_line(operations* ops, compile_options* comp_ops,string** buff,FILE* file,unsigned long int* str_index,string* error_message,unsigned int base_assign, unsigned int base_input, unsigned int base_output) {
     clear_string(error_message);
     if (file == NULL) {
         return 0;
@@ -740,10 +828,27 @@ enum run_errors read_line(operations* ops, compile_options* comp_ops,string** bu
     clear_string(buff[0]);
     clear_string(buff[1]);
     clear_string(buff[2]);
+    unsigned int answer = 0;
+    int status = 0;
+    int after_func = 0;
+    int is_comment = 0;
+    int is_line_comment = 0;
     unsigned long int from_letter = 0;
+    int i = 0;
+    unsigned int k = 0;
     string *str_to_write = buff[0];
     while ((letter = fgetc(file)) != EOF) {
-        if (letter == ' ') {
+        if (letter == ']'){
+            is_comment = 0;
+            continue;
+        }
+        else if (is_comment){
+            if (letter == '\n'){
+                (*str_index)++;
+            }
+            continue;
+        }
+        else if (letter == ' ') {
             if (from_letter == 1) {
                 if (str_to_write == buff[0]) {
                     str_to_write = buff[1];
@@ -751,12 +856,26 @@ enum run_errors read_line(operations* ops, compile_options* comp_ops,string** bu
                 }
             }
             continue;
-        } else if (letter == '\t') {
+        }
+        else if (letter == '\t') {
             continue;
-        } else if (letter == '\n') {
+        }
+        else if (letter == '\n') {
+            if (is_line_comment){
+                is_line_comment = 0;
+            }
             (*str_index)++;
             continue;
-        } else if (letter == '=') {
+        }
+        else if (letter == '['){
+            is_comment = 1;
+            continue;
+        }
+        else if (letter == '#'){
+            is_line_comment = 1;
+            is_comment = 1;
+        }
+        else if (letter == '=') {
             if (str_to_write == buff[0]) {
                 str_to_write = buff[1];
             } else if (buff[1]->current_size > 0) {
@@ -768,33 +887,47 @@ enum run_errors read_line(operations* ops, compile_options* comp_ops,string** bu
             add_to_string(str_to_write, letter);
             str_to_write = buff[2];
             continue;
-        } else if (letter == ';') {
+        }
+        else if (letter == ';') {
             if ((buff[1]->current_size == 0) && (buff[2]->current_size == 0)) {
                 return init;
             } else if ((buff[2]->current_size > 0) && (buff[1]->current_size == 0)) {
                 add_to_string_string(error_message, "Error: expected = at  line: ");
                 add_number_to_string(error_message, *str_index);
                 add_to_string(error_message, '\n');
+                return run_error;
             } else if ((buff[1]->current_size > 0) && (buff[2]->current_size == 0)) {
                 add_to_string_string(error_message, "Error: expected rvalue at  line: ");
                 add_number_to_string(error_message, *str_index);
                 add_to_string(error_message, '\n');
-            } else {
+                return run_error;
+            }
+            else if (buff[0]->current_size == 0){
+                add_to_string_string(error_message, "Error: expected variable name  at  line: ");
+                add_number_to_string(error_message, *str_index);
+                add_to_string(error_message, '\n');
+                return run_error;
+            }
+            else {
                 add_to_string(str_to_write, letter);
-                //TODO make equation
-
+                answer = equation_recog(buff[2],ops,comp_ops,base_assign,base_input,base_output,&k,&status,&after_func,0,0);
+                if (k+2 < buff[2]->current_size){
+                    return too_many_arguments;
+                }
                 return success;
             }
-            break;
         }
         from_letter = 1;
         add_to_string(str_to_write, letter);
 
     }
-    return empty;
+    add_to_string_string(error_message, "Error: expected ; or ] line: ");
+    add_number_to_string(error_message, *str_index);
+    add_to_string(error_message, '\n');
+    return run_error;
 }
 
-void run(operations* ops,compile_options* comp_ops,FILE* run_file, int debug_status,string* error_message,trie* variables_data){
+void run(operations* ops,compile_options* comp_ops,FILE* run_file, int debug_status,string* error_message,trie* variables_data,unsigned int base_assign, unsigned int base_input,unsigned int base_output){
     unsigned long int str_index = 1;
     clear_string(error_message);
     if (run_file == NULL){
@@ -802,16 +935,21 @@ void run(operations* ops,compile_options* comp_ops,FILE* run_file, int debug_sta
     }
     int status;
     string* buff[3] = {create_string(&status), create_string(&status),create_string(&status)};
-        switch (read_line(ops,comp_ops,buff,run_file,&str_index,error_message)) {
+        switch (read_line(ops,comp_ops,buff,run_file,&str_index,error_message,base_assign,base_input,base_output)) {
             case run_error:
                 return;
             case init:
-                printf("init\n");
+                printf("init\n");// если занят только buff[0] это значить что это или вызов функции или обьявления переменной
+                //TODO зарезервировать BREAKPOINT чтобы не было обьявлено переменной с таким именем
                 break;
             case success:
                 break;
             case empty:
                 printf("empty file\n");
+                break;
+            case too_many_arguments:
+                printf("too many\n");
+                break;
         }
 
 }
