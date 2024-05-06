@@ -766,7 +766,7 @@ unsigned int  equation_recog(string* equation,operations* ops, compile_options* 
 
         }
         else if (equation->string[*i] == ','){
-            comma_count++; //TODO наверное если после завершения программы i < current_size значит было передано больше параметров чем 1 или 2  проверить!
+            comma_count++; //TODO наверное если после завершения программы i < current_size значит было передано больше параметров чем 1 или 2  проверить! на первый тест так и работает без подсчета запятых но почему ?
             if (is_binary) {
                 if (*after_func) {
                     *after_func = 0;
