@@ -1,3 +1,3 @@
-D:/mai/mat_prac_labs/lab_3/lab_3_10/cmake-build-debug/CMakeFiles/lab_3_10.dir
-D:/mai/mat_prac_labs/lab_3/lab_3_10/cmake-build-debug/CMakeFiles/edit_cache.dir
-D:/mai/mat_prac_labs/lab_3/lab_3_10/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/home/timeb/Desktop/Labs/lab_3/lab_3_10/cmake-build-debug/CMakeFiles/lab_3_10.dir
+/home/timeb/Desktop/Labs/lab_3/lab_3_10/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/timeb/Desktop/Labs/lab_3/lab_3_10/cmake-build-debug/CMakeFiles/rebuild_cache.dir

@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <malloc.h>
 #include <ctype.h>
-
+#include <stdlib.h>
 enum exit_codes
 {
     memory_error,

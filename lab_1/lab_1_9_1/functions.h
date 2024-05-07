@@ -8,6 +8,7 @@
 #include <ctype.h>
 #include <string.h>
 #include <stdbool.h>
+#include <limits.h>
 
 void swap(int* a, int* b);
 bool is_number(const char* string);

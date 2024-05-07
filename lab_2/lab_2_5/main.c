@@ -20,7 +20,7 @@ typedef enum status_code
     code_error_alloc
 } status_code;
 
-status_realloc my_realloc(void** var, int size)
+status_realloc my_realloc(char** var, int size)
 {
     void* new_ptr = realloc(*var, size);
     if (new_ptr != NULL) {
@@ -238,7 +238,7 @@ bool is_digit_str(char* str, int size) {
     return true;
 }
 
-int overfprintf(FILE * stream, char * format, ...) {
+int overfprintf(FILE * stream, char * format,int argc, ...) {
     if (!stream) {
         return -1;
     }
@@ -246,7 +246,7 @@ int overfprintf(FILE * stream, char * format, ...) {
     if (!size_format) {
         return - 1;
     }
-    int argc = 0;
+    argc = 0;
     for (int i = 0; i < size_format; i++) {
         if (format[i] == '%') {
             if (format[i + 1] != '%') {
@@ -281,7 +281,7 @@ int overfprintf(FILE * stream, char * format, ...) {
             size_flag++;
             if (size_flag == capacity_flag - 1) {
                 capacity_flag *= 2;
-                status_realloc st_realloc = my_realloc(flag, capacity_flag);
+                status_realloc st_realloc = my_realloc(&flag, capacity_flag);
                 if (st_realloc == status_realloc_fail) {
                     free(flag);
                     printf("Can`t realloc memory!\n");
@@ -436,12 +436,12 @@ int overfprintf(FILE * stream, char * format, ...) {
     return ret_value;
 }
 
-int oversprintf(char* buf, char * format, ...) {
+int oversprintf(char* buf, char * format,int argc, ...) {
     int size_format = strlen(format);
     if (!size_format) {
         return - 1;
     }
-    int argc = 0;
+    argc = 0;
     for (int i = 0; i < size_format; i++) {
         if (format[i] == '%') {
             if (format[i + 1] != '%') {
@@ -476,7 +476,7 @@ int oversprintf(char* buf, char * format, ...) {
             size_flag++;
             if (size_flag == capacity_flag - 1) {
                 capacity_flag *= 2;
-                status_realloc st_realloc = my_realloc(flag, capacity_flag);
+                status_realloc st_realloc = my_realloc(&    flag, capacity_flag);
                 if (st_realloc == status_realloc_fail) {
                     free(flag);
                     printf("Can`t realloc memory!\n");
@@ -636,21 +636,21 @@ int oversprintf(char* buf, char * format, ...) {
 
 int main(int argc, char* argv[]) {
     FILE* in = fopen("tmp.txt", "w");
-    overfprintf(stdout, "wow number is: %Ro, %Cv\n", 5435, 1234, 16);
-    overfprintf(stdout, "sfdsdf %to %TO %d%d\n", "abcdef", 16, "10", 10, 12, 12);
-    overfprintf(stdout, "%mi %mu %md, %mf\n", (int)10, (unsigned int)12, (double)2.2, (double)2.3);
-    overfprintf(stdout, "fsdwow number is: %Zr\n", (unsigned int)10);
-    overfprintf(in, "fsdwow number is: %Zk\n", (unsigned int)10); // 15 -- 10 -- 8 22 17
-    overfprintf(stdout, "\n%Ro %CV %Ro %CV %CV\n", 15, 10, 2, 15, 22, 2, 17, 2);
+    overfprintf(stdout, "wow number is: %Ro, %Cv\n",0, 5435, 1234, 16);
+    overfprintf(stdout, "sfdsdf %to %TO %d%d\n",0, "abcdef", 16, "10",0, 10, 12, 12);
+    overfprintf(stdout, "%mi %mu %md, %mf\n",0, (int)10, (unsigned int)12, (double)2.2, (double)2.3);
+    overfprintf(stdout, "fsdwow number is: %Zr\n",0, (unsigned int)10);
+    overfprintf(in, "fsdwow number is: %Zk\n",0, (unsigned int)10); // 15 -- 10 -- 8 22 17
+    overfprintf(stdout, "\n%Ro %CV %Ro %CV %CV\n",0, 15, 10, 2, 15, 22, 2, 17, 2);
     char* buf = (char*)malloc(sizeof(char) * 32);
     printf("\n\n");
-    oversprintf(buf, "wow number is: %Ro, %Cv\n", 5435, 1234, 16);
+    oversprintf(buf, "wow number is: %Ro, %Cv\n",0, 5435, 1234, 16);
     printf("%s\n", buf);
-    oversprintf(buf, "sfdsdf %to %TO %d%d\n", "abcdef", 16, "10", 10, 12, 12);
+    oversprintf(buf, "sfdsdf %to %TO %d%d\n",0, "abcdef", 16, "10", 10, 12, 12);
     printf("%s\n", buf);
-    oversprintf(buf, "%mi %mu fsd ad fsd %md, %mf\n", (int)10, (unsigned int)12, (double)2.2, (double)2.3);
+    oversprintf(buf, "%mi %mu fsd ad fsd %md, %mf\n",0, (int)10, (unsigned int)12, (double)2.2, (double)2.3);
     printf("%s\n", buf);
-    oversprintf(buf, "fsdwow number is: %Zr\n", (unsigned int)10);
+    oversprintf(buf, "fsdwow number is: %Zr\n",0, (unsigned int)10);
     printf("%s\n", buf);
     free(buf);
     fclose(in);

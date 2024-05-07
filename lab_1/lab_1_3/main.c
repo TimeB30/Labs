@@ -46,10 +46,10 @@ int main(int argc, char** argv) {
                 {
                     ptr = argv[2];
                     epsilon = strtod(argv[2], &ptr);
-                    if(!(is_number(argv[3]) && is_number(argv[4]) && is_number(argv[5]))){
-                        printf("\nWrong coefficients given");
-                        return 0;
-                    }
+                    // if(!(is_number(argv[3]) && is_number(argv[4]) && is_number(argv[5]))){
+                    //     printf("\nWrong coefficients given");
+                    //     return 0;
+                    // }
                     permutation = (double*)malloc(sizeof(double)*EQUATION_COEFFICIENTS);
                     if(permutation == NULL){
                         printf("\nInternal error lol.");

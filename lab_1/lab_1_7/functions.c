@@ -71,7 +71,6 @@ int even_odd_term_writing(FILE** input1, FILE** input2, FILE** output)
             skip_splits(input1, &c1);
         }
     }
-    if(fprintf(*output, "%c", EOF) == EOF) return writing_fail;
     return writing_success;
 }
 
@@ -113,7 +112,9 @@ int write_ascii(FILE** input, FILE** output, int* c, int base)
     {
         char* ptr;
         if(to_system(*c, &ptr, base) == m_alloc_fail) return m_alloc_fail;
-        if(fprintf(*output, "%s", itoa(*c, ptr, base)) == EOF) return writing_fail;
+        // if(fprintf(*output, "%s", itoa(*c, ptr, base)) == EOF) return writing_fail;
+        snprintf(ptr,strlen(ptr)*sizeof(char),"%d",*c);
+        if(fprintf(*output, "%s",ptr) == EOF) return writing_fail;
         *c = fgetc(*input);
     }
     if(fprintf(*output, " ") == EOF) return writing_fail;

@@ -1,7 +1,0 @@
-# ninja log v5
-1	98	7236474957565755	CMakeFiles/lab_3_9.dir/main.c.obj	27b463dc2487bd78
-12	95	7236474957545756	CMakeFiles/lab_3_9.dir/queue.c.obj	98952a93d31353bf
-2	86	7236475266663545	lab_3_9.exe	f8f942b2890ada87
-5	101	7236474957585756	CMakeFiles/lab_3_9.dir/functions.c.obj	f560133fecdccab6
-9	115	7236474957755806	CMakeFiles/lab_3_9.dir/tree.c.obj	62f3ec11815775cd
-0	117	7236603776254239	build.ninja	a4f10cb855168d71

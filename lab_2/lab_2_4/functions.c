@@ -28,7 +28,7 @@ int is_convex(int vertex_amount, ...)
 
     for(int i = 0; i < vertex_amount; i++)
     {
-        polygon[i] = *va_arg(args, point_2d*);
+        polygon[i] = va_arg(args, point_2d);
     }
     va_end(args);
 

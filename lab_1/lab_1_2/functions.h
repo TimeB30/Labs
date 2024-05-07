@@ -1,7 +1,7 @@
 
 #ifndef LAB_1_2_FUNCTIONS_H
 #define LAB_1_2_FUNCTIONS_H
-
+#define M_PI 3.14159265358979323846
 #include <string.h>
 #include <stdio.h>
 #include <ctype.h>

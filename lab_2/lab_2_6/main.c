@@ -19,7 +19,7 @@ typedef enum status_code {
     code_error_alloc
 } status_code;
 
-status_realloc my_realloc(void** var, int size) {
+status_realloc my_realloc(char** var, int size) {
     void* new_ptr = realloc(*var, size);
     if (new_ptr != NULL) {
         *var = new_ptr;
@@ -174,7 +174,7 @@ status_code convert_to_decimal(char* number_str, int base, int* dec_number, int 
 }
 
 
-int overfscanf(FILE * stream, const char * format, ...) {
+int overfscanf(FILE * stream, const char * format,int argc, ...) {
     if (!stream) {
         return -1;
     }
@@ -182,7 +182,7 @@ int overfscanf(FILE * stream, const char * format, ...) {
     if (!size_format) {
         return -1;
     }
-    int argc = 0;
+    argc = 0;
     for (int i = 0; i < size_format; i++) {
         if (format[i] == '%') {
             if (format[i + 1] != '%') {
@@ -216,7 +216,7 @@ int overfscanf(FILE * stream, const char * format, ...) {
             //printf("%c><\n", symbol);
             if (size_flag == capacity_flag - 1) {
                 capacity_flag *= 2;
-                status_realloc st_realloc = my_realloc(flag, capacity_flag);
+                status_realloc st_realloc = my_realloc(&flag, capacity_flag);
                 if (st_realloc == status_realloc_fail) {
                     free(flag);
                     printf("Can`t realloc memory!\n");
@@ -274,7 +274,7 @@ int overfscanf(FILE * stream, const char * format, ...) {
     return ret_value;
 }
 
-int oversscanf(char * buf, const char * format, ...) {
+int oversscanf(char * buf, const char * format,int argc, ...) {
     if (!buf) {
         return -1;
     }
@@ -282,7 +282,7 @@ int oversscanf(char * buf, const char * format, ...) {
     if (!size_format) {
         return -1;
     }
-    int argc = 0;
+    argc = 0;
     for (int i = 0; i < size_format; i++) {
         if (format[i] == '%') {
             if (format[i + 1] != '%') {
@@ -318,7 +318,7 @@ int oversscanf(char * buf, const char * format, ...) {
             //printf("%c><\n", symbol);
             if (size_flag == capacity_flag - 1) {
                 capacity_flag *= 2;
-                status_realloc st_realloc = my_realloc(flag, capacity_flag);
+                status_realloc st_realloc = my_realloc(&flag, capacity_flag);
                 if (st_realloc == status_realloc_fail) {
                     free(flag);
                     printf("Can`t realloc memory!\n");
@@ -398,11 +398,11 @@ int main(int argc, char** argv) {
     oversscanf("ABCDEF 010011 SUKA abcdef MMCXXXV", "%CV %Zr %s %Cv %Ro", &num1, 2, &num4, s, &num2, 16, &num3);
     printf(">>>>%d %d %s %d %d\n", num1, num4, s, num2, num3);
     */
-    oversscanf("XV X 1000\0", "%Ro %Ro %CV", &num1, &num2, &num3, 2);
+    oversscanf("XV X 1000\0", "%Ro %Ro %CV", 0,&num1, &num2, &num3, 2);
     //overfscanf(in, "%Ro %Ro %Cv", &num1, &num2, &num3, 2);
     //printf("%d -- %d -- %d\n", num1, num2, num3);
     int num5, num6;
-    oversscanf("XV 1000 X 10110 10001\0", "%Ro %CV %Ro %CV %CV", &num1, &num3, 2, &num2, &num5, 2, &num6, 2);
+    oversscanf("XV 1000 X 10110 10001\0", "%Ro %CV %Ro %CV %CV",0, &num1, &num3, 2, &num2, &num5, 2, &num6, 2);
     printf("%d -- %d -- %d %d %d\n", num1, num2, num3, num5, num6);
-    fclose(in);
+ 
 }

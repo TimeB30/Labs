@@ -1,3 +1,4 @@
-D:/mai/mat_prac_labs/lab_1_9_2/cmake-build-debug/CMakeFiles/lab_1_9_2.dir
-D:/mai/mat_prac_labs/lab_1_9_2/cmake-build-debug/CMakeFiles/edit_cache.dir
-D:/mai/mat_prac_labs/lab_1_9_2/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/home/timeb/Desktop/Labs/lab_1/lab_1_9_2/cmake-build-debug/CMakeFiles/lab1.dir
+/home/timeb/Desktop/Labs/lab_1/lab_1_9_2/cmake-build-debug/CMakeFiles/func.dir
+/home/timeb/Desktop/Labs/lab_1/lab_1_9_2/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/timeb/Desktop/Labs/lab_1/lab_1_9_2/cmake-build-debug/CMakeFiles/rebuild_cache.dir

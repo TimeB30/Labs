@@ -1,7 +1,7 @@
 
 #ifndef LAB_2_7_FUNCTIONS_H
 #define LAB_2_7_FUNCTIONS_H
-
+ #define M_PI 3.14159265358979323846
 #include <stdio.h>
 #include <math.h>
 

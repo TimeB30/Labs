@@ -551,6 +551,5 @@ int dialogue(const char* input_path, int argc, const char** argv)
     }
     free(students);
     if(out != stdout && out != NULL) fclose(out);
-    fclose(in);
     return success;
 }
