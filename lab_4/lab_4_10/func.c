@@ -364,57 +364,68 @@ operations* create_operations(int* status){
     }
     ops->ops[0].func = add;
     ops->ops[0].priority = 4;
-    ops->ops[0].is_binary = 1; // TODO дописать для всех
+    ops->ops[0].is_binary = 1;
     add_to_string_string(ops->ops[0].realname,"add");
     add_to_string_string(ops->ops[0].name,"add");
     ops->ops[1].func = mult;
     ops->ops[1].priority = 5;
+    ops->ops[1].is_binary = 1;
     add_to_string_string(ops->ops[1].realname,"mult");
-    add_to_string_string(ops->ops[1].name,"N");
+    add_to_string_string(ops->ops[1].name,"mult");
     ops->ops[2].func = sub;
     ops->ops[2].priority = 4;
+    ops->ops[2].is_binary = 1;
     add_to_string_string(ops->ops[2].realname,"sub");
-    add_to_string_string(ops->ops[2].name,"N");
+    add_to_string_string(ops->ops[2].name,"sub");
     ops->ops[3].func = mod_pow;
     ops->ops[3].priority = 6;
+    ops->ops[3].is_binary = 1;
     add_to_string_string(ops->ops[3].realname,"pow");
-    add_to_string_string(ops->ops[3].name,"N");
+    add_to_string_string(ops->ops[3].name,"pow");
     ops->ops[4].func = my_div;
     ops->ops[4].priority = 5;
+    ops->ops[4].is_binary = 1;
     add_to_string_string(ops->ops[4].realname,"div");
-    add_to_string_string(ops->ops[4].name,"N");
+    add_to_string_string(ops->ops[4].name,"div");
     ops->ops[5].func = rem;
     ops->ops[5].priority = 5;
+    ops->ops[5].is_binary = 1;
     add_to_string_string(ops->ops[5].realname,"rem");
-    add_to_string_string(ops->ops[5].name,"N");
+    add_to_string_string(ops->ops[5].name,"rem");
     ops->ops[6].func = xor;
     ops->ops[6].priority = 2;
+    ops->ops[6].is_binary = 2;
     add_to_string_string(ops->ops[6].realname,"xor");
-    add_to_string_string(ops->ops[6].name,"N");
+    add_to_string_string(ops->ops[6].name,"xor");
     ops->ops[7].func = and;
     ops->ops[7].priority = 3;
+    ops->ops[7].is_binary = 1;
     add_to_string_string(ops->ops[7].realname,"and");
-    add_to_string_string(ops->ops[7].name,"N");
+    add_to_string_string(ops->ops[7].name,"and");
     ops->ops[8].func = or;
     ops->ops[8].priority = 1;
+    ops->ops[8].is_binary = 1;
     add_to_string_string(ops->ops[8].realname,"or");
-    add_to_string_string(ops->ops[8].name,"N");
-    ops->ops[9].func = add; //TODO warning это временно чтоб компилятор мозги не ебал  был init
-    ops->ops[9].priority = 0;
-    add_to_string_string(ops->ops[9].realname,"=");
-    add_to_string_string(ops->ops[9].name,"N");
-    ops->ops[10].func = not;
-    ops->ops[10].priority = 7;
+    add_to_string_string(ops->ops[8].name,"or");
+    ops->ops[9].func = not;
+    ops->ops[9].priority = 7;
+    ops->ops[9].is_binary = 0;
     add_to_string_string(ops->ops[10].realname,"not");
-    add_to_string_string(ops->ops[10].name,"N");
-    ops->ops[11].func = add; //TODO warning это временно чтоб компилятор мозги не ебал  был input
-    ops->ops[11].priority = 1;
+    add_to_string_string(ops->ops[10].name,"not");
+    ops->ops[10].func = input;
+    ops->ops[10].priority = 1;
+    ops->ops[10].is_binary = 0;
     add_to_string_string(ops->ops[11].realname,"input");
-    add_to_string_string(ops->ops[11].name,"N");
-    ops->ops[12].func = add; //TODO warning это временно чтоб компилятор мозги не ебал  был output
-    ops->ops[12].priority = 0;
+    add_to_string_string(ops->ops[11].name,"input");
+    ops->ops[11].func = output;
+    ops->ops[11].priority = 0;
+    ops->ops[11].is_binary = 0;
     add_to_string_string(ops->ops[12].realname,"output");
-    add_to_string_string(ops->ops[12].name,"N");
+    add_to_string_string(ops->ops[12].name,"output");
+    ops->ops[12].func = initialize;
+    ops->ops[12].priority = 0;
+    add_to_string_string(ops->ops[9].realname,"=");
+    add_to_string_string(ops->ops[9].name,"=");
     return ops;
 }
 compile_options* create_compile_options(int* status){
@@ -730,24 +741,38 @@ enum run_errors check_variable(string* variable_name){
     return good_name;
 }
 operation * get_op_info(string* func_name,operations* ops){
-    for (int i = 0; i < 13; i++){
+    for (int i = 0; i < 12; i++){
         if (!strcmp(func_name->string,ops->ops[i].name->string)){
             return &(ops->ops[i]);
         }
     }
     return NULL;
 };
-unsigned int  equation_recog(string* equation,operations* ops, compile_options* comp_ops,unsigned int base_assign, unsigned int base_input,unsigned int base_output,unsigned int* i,int* status,int* after_func,int is_binary,int comma_count){
-    string* buff_str = create_string(&status);
+unsigned int  equation_recog(string* equation,operations* ops, compile_options* comp_ops,unsigned int base_assign, unsigned int base_input,unsigned int base_output,unsigned int* i,int* status,int* after_func,int is_binary,string* error_message,unsigned int str_index){
+    if (*status < 0){
+        return 1;
+    }
+    clear_string(error_message);
+    if (equation->string[*i] == ';'){
+        add_to_string_string(error_message, "Error: too few arguments was given at line");
+        add_number_to_string(error_message, str_index);
+        add_to_string(error_message, '\n');
+        *status = -1;
+    }
+    string* buff_str = create_string(status);
     operation* op;
     unsigned int answer;
     unsigned int num = 0;
     int after_func2 = 0;
-    int comma_count2 = 0;
     while (*i < equation->current_size){
         if ((equation->string[*i] == '(')){
             op = get_op_info(buff_str,ops);
             if (op == NULL){
+                add_to_string_string(error_message, "Error: function named '");
+                add_to_string_string(error_message,buff_str->string);
+                add_to_string_string(error_message, "' not found at line");
+                add_number_to_string(error_message, str_index);
+                add_to_string(error_message, '\n');
                 *status = -1;
                 break;
             }
@@ -755,28 +780,42 @@ unsigned int  equation_recog(string* equation,operations* ops, compile_options* 
                 *after_func = 1;
                 (*i)++;
                 if (op->is_binary){
-                    answer =  ((unsigned int (*) (unsigned int, unsigned int, int*))op->func)(equation_recog(equation,ops,comp_ops,base_assign,base_input,base_output,i,status,&after_func2,1,comma_count2),equation_recog(equation,ops,comp_ops,base_assign,base_input,base_output,i,status,&after_func2,1,comma_count2),status);
+                    answer =  ((unsigned int (*) (unsigned int, unsigned int, int*))op->func)(equation_recog(equation,ops,comp_ops,base_assign,base_input,base_output,i,status,&after_func2,1,error_message,str_index),equation_recog(equation,ops,comp_ops,base_assign,base_input,base_output,i,status,&after_func2,1,error_message,str_index),status);
+                    if (*status < 0){
+                        return 1;
+                    }
 
                 }
                 else{
-                    answer = ((unsigned int (*) (unsigned int, int*))op->func)(equation_recog(equation,ops,comp_ops,base_assign,base_input,base_output,i,status,&after_func2,0,comma_count2),status);
+                    answer = ((unsigned int (*) (unsigned int, int*))op->func)(equation_recog(equation,ops,comp_ops,base_assign,base_input,base_output,i,status,&after_func2,0,error_message,str_index),status);
+                    if (*status < 0){
+                        return 1;
+                    }
                 }
                 return answer;
             }
 
         }
         else if (equation->string[*i] == ','){
-            comma_count++; //TODO наверное если после завершения программы i < current_size значит было передано больше параметров чем 1 или 2  проверить! на первый тест так и работает без подсчета запятых но почему ?
+            //TODO наверное если после завершения программы i < current_size значит было передано больше параметров чем 1 или 2  проверить! на первый тест так и работает без подсчета запятых но почему ?
             if (is_binary) {
                 if (*after_func) {
                     *after_func = 0;
                     clear_string(buff_str);
                     (*i)++;
                     continue;
-                } else {
+                }
+                else {
                     (*i)++;
                     answer = strtouint(buff_str->string, base_assign, status);
-                    if (status < 0) {
+                    if (*status < 0) {
+                        add_to_string_string(error_message, "Error: parameter '");
+                        add_to_string_string(error_message,buff_str->string);
+                        add_to_string_string(error_message, "' is not a number or variable at line");
+                        add_number_to_string(error_message, str_index);
+                        //TODO сделать проверку переменной и добавить в поле значение была эта переменная обьявлена или нет чтоб не обратиться к необьявленной переменной или обьявить одну и ту же переменную дважды 
+                        add_to_string(error_message, '\n');
+                        *status = -1;
                         return 1;
                     } else {
                         return answer;
@@ -784,11 +823,21 @@ unsigned int  equation_recog(string* equation,operations* ops, compile_options* 
                 }
             }
             else {
+                add_to_string_string(error_message, " expected ( or too many arguments  at line ");
+                add_number_to_string(error_message, str_index);
+                add_to_string(error_message, '\n');
                 *status = -1;
                 return 0;
             }
         }
         else if (equation->string[*i] == ')'){
+            if (buff_str->current_size == 0){
+                add_to_string_string(error_message, "Error: no parameters given at line ");
+                add_number_to_string(error_message, str_index);
+                add_to_string(error_message, '\n');
+                *status = -1;
+                return 1;
+            }
             if (*after_func) {
                 (*i)++;
                 clear_string(buff_str);
@@ -797,7 +846,7 @@ unsigned int  equation_recog(string* equation,operations* ops, compile_options* 
             else {
                 (*i)++;
                 answer = strtouint(buff_str->string,base_assign,status);
-                if (status < 0){
+                if (*status < 0){
                     return 1;
                 }
                 else {
@@ -910,9 +959,13 @@ enum run_errors read_line(operations* ops, compile_options* comp_ops,string** bu
             }
             else {
                 add_to_string(str_to_write, letter);
-                answer = equation_recog(buff[2],ops,comp_ops,base_assign,base_input,base_output,&k,&status,&after_func,0,0);
-                if (k+2 < buff[2]->current_size){
+                answer = equation_recog(buff[2],ops,comp_ops,base_assign,base_input,base_output,&k,&status,&after_func,0,error_message,*str_index);
+                if (status < 0){
+                    return run_error;
+                }
+                if (k+1 < buff[2]->current_size){
                     return too_many_arguments;
+                    //TODO если передать переменную как парамет через пробел то он это съест потому что пробелы убираются бляяяяя
                 }
                 return success;
             }
@@ -938,6 +991,7 @@ void run(operations* ops,compile_options* comp_ops,FILE* run_file, int debug_sta
         switch (read_line(ops,comp_ops,buff,run_file,&str_index,error_message,base_assign,base_input,base_output)) {
             case run_error:
                 return;
+                break;
             case init:
                 printf("init\n");// если занят только buff[0] это значить что это или вызов функции или обьявления переменной
                 //TODO зарезервировать BREAKPOINT чтобы не было обьявлено переменной с таким именем
