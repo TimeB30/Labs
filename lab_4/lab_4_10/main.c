@@ -59,8 +59,8 @@ int main(int argc, char** argv){
     check_errors(status);
     trie* tr = create_trie();
     string* str = create_string(&status);
-    add_to_string(str,'d');
-    add_value_to_trie(str,249,tr,&status);
+    add_to_string_string(str,"rm");
+    add_value_to_trie(str,1,tr,&status);
 //    unsigned int num = input(base_input,&status); // works good
 //    printf("%u\n",num);
 //    output(13,2); // works great

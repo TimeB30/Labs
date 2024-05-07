@@ -14,12 +14,16 @@ void create_trie_node_array(trie_node*** array){
         memory_error();
     }
     (*array)[61]->letter = '_';
+    (*array)[61]->is_used = 0;
+    (*array)[61]->trie_nodes = NULL;
     char current_char = 48;
     for (int i = 0; i < 61; i++){
         (*array)[i] = (trie_node*)malloc(sizeof(trie_node));
         if ((*array)[i] == NULL){
             memory_error();
         }
+        (*array)[i]->is_used = 0;
+        (*array)[i]->trie_nodes = NULL;
         if (i < 10){
             (*array)[i]->letter = (char)(current_char + i);
         }
@@ -54,31 +58,33 @@ void  add_value_to_trie_inside(const char* valuable_name, unsigned int value, tr
         *status = 1;
     }
     unsigned int i = 0;
-    unsigned int i2;
     unsigned int name_index = 0;
     trie_node** tmp = first_array;
-    trie_node** tmp2;
+    trie_node* tmp2;
     while (valuable_name[name_index] != '\0'){
         if (i == 61){
             *status = 1;
         }
         if (tmp[i]->letter == valuable_name[name_index]){
             name_index++;
-            tmp2 = tmp;
+            tmp2 = tmp[i];
+            if (tmp[i]->trie_nodes == NULL){
+                create_trie_node_array(&(tmp[i]->trie_nodes));
+            }
             tmp = tmp[i]->trie_nodes;
-            i2 = i;
             i = 0;
         }
         i++;
     }
-    tmp2[i2]->value = value;
+    tmp2->value = value;
+    tmp2->is_used = 1;
 }
 
 void add_value_to_trie(string* valuable_name, unsigned int value, trie* tr,int* status){
     add_value_to_trie_inside(valuable_name->string, value, tr->root,status);
 }
 
-unsigned int  get_value_from_trie_inside(const char* variable_name,trie_node** first_array,int* status){
+trie_node* get_value_from_trie_inside(const char* variable_name,trie_node** first_array,int* status){
     if ((variable_name[0] > 47) && (variable_name[0] < 58)){
         *status = 1;
         return 0;
@@ -86,21 +92,26 @@ unsigned int  get_value_from_trie_inside(const char* variable_name,trie_node** f
     unsigned int i = 0;
     unsigned int name_index = 0;
     trie_node** tmp = first_array;
+    trie_node* tmp2;
     while(variable_name[name_index] != '\0' ){
+        if (tmp == NULL){
+            return NULL;
+        }
         if (i == 61){
             *status = 1;
             return 0;
         }
         if (tmp[i]->letter == variable_name[name_index]){
-            tmp = &tmp[i];
+            tmp2 = tmp[i];
+            tmp = tmp[i]->trie_nodes;
             name_index++;
             i = 0;
         }
         i++;
     }
-    return tmp[i-1]->value;
+    return tmp2;
 }
-unsigned int get_value_from_trie(string* valuable_name,trie* tr,int* status){
+trie_node* get_value_from_trie(string* valuable_name,trie* tr,int* status){
     return get_value_from_trie_inside(valuable_name->string,tr->root,status);
 
 }
@@ -748,7 +759,7 @@ operation * get_op_info(string* func_name,operations* ops){
     }
     return NULL;
 };
-unsigned int  equation_recog(string* equation,operations* ops, compile_options* comp_ops,unsigned int base_assign, unsigned int base_input,unsigned int base_output,unsigned int* i,int* status,int* after_func,int is_binary,string* error_message,unsigned int str_index){
+unsigned int equation_recog(string* equation,operations* ops, compile_options* comp_ops,trie* variables_data,unsigned int base_assign, unsigned int base_input,unsigned int base_output,unsigned int* i,int* status,int* after_func,int is_binary,string* error_message,unsigned int str_index){
     if (*status < 0){
         return 1;
     }
@@ -761,9 +772,10 @@ unsigned int  equation_recog(string* equation,operations* ops, compile_options* 
     }
     string* buff_str = create_string(status);
     operation* op;
-    unsigned int answer;
+    unsigned int answer = 0;
     unsigned int num = 0;
     int after_func2 = 0;
+    trie_node* variable_info;
     while (*i < equation->current_size){
         if ((equation->string[*i] == '(')){
             op = get_op_info(buff_str,ops);
@@ -780,14 +792,14 @@ unsigned int  equation_recog(string* equation,operations* ops, compile_options* 
                 *after_func = 1;
                 (*i)++;
                 if (op->is_binary){
-                    answer =  ((unsigned int (*) (unsigned int, unsigned int, int*))op->func)(equation_recog(equation,ops,comp_ops,base_assign,base_input,base_output,i,status,&after_func2,1,error_message,str_index),equation_recog(equation,ops,comp_ops,base_assign,base_input,base_output,i,status,&after_func2,1,error_message,str_index),status);
+                    answer =  ((unsigned int (*) (unsigned int, unsigned int, int*))op->func)(equation_recog(equation,ops,comp_ops,variables_data,base_assign,base_input,base_output,i,status,&after_func2,1,error_message,str_index),equation_recog(equation,ops,comp_ops,variables_data,base_assign,base_input,base_output,i,status,&after_func2,1,error_message,str_index),status);
                     if (*status < 0){
                         return 1;
                     }
 
                 }
                 else{
-                    answer = ((unsigned int (*) (unsigned int, int*))op->func)(equation_recog(equation,ops,comp_ops,base_assign,base_input,base_output,i,status,&after_func2,0,error_message,str_index),status);
+                    answer = ((unsigned int (*) (unsigned int, int*))op->func)(equation_recog(equation,ops,comp_ops,variables_data,base_assign,base_input,base_output,i,status,&after_func2,0,error_message,str_index),status);
                     if (*status < 0){
                         return 1;
                     }
@@ -809,6 +821,11 @@ unsigned int  equation_recog(string* equation,operations* ops, compile_options* 
                     (*i)++;
                     answer = strtouint(buff_str->string, base_assign, status);
                     if (*status < 0) {
+                        *status = 0;
+                        variable_info = get_value_from_trie(buff_str,variables_data,status);
+                        if ((variable_info != NULL) && (variable_info->is_used)){
+                            return variable_info->value;
+                        }
                         add_to_string_string(error_message, "Error: parameter '");
                         add_to_string_string(error_message,buff_str->string);
                         add_to_string_string(error_message, "' is not a number or variable at line");
@@ -847,6 +864,18 @@ unsigned int  equation_recog(string* equation,operations* ops, compile_options* 
                 (*i)++;
                 answer = strtouint(buff_str->string,base_assign,status);
                 if (*status < 0){
+                    *status = 0;
+                    variable_info = get_value_from_trie(buff_str,variables_data,status);
+                    if ((variable_info != NULL) && (variable_info->is_used)){
+                        return variable_info->value;
+                    }
+                    add_to_string_string(error_message, "Error: parameter '");
+                    add_to_string_string(error_message,buff_str->string);
+                    add_to_string_string(error_message, "' is not a number or variable at line");
+                    add_number_to_string(error_message, str_index);
+                    //TODO сделать  проверку переменной и добавить в поле значение была эта переменная обьявлена или нет чтоб не обратиться к необьявленной переменной или обьявить одну и ту же переменную дважды
+                    add_to_string(error_message, '\n');
+                    *status = -1;
                     return 1;
                 }
                 else {
@@ -858,17 +887,20 @@ unsigned int  equation_recog(string* equation,operations* ops, compile_options* 
         add_to_string(buff_str,equation->string[*i]);
         (*i)++;
     }
-    if (buff_str->current_size > 0){
-        return answer;
-    }
     answer = strtouint(equation->string,base_assign,status);
-    if (status < 0){
+    if (*status < 0){
+        *status = 2;
         return 1;
     }
-    *status = 0;
+    else{
+        *status = 1;
+        return 1;
+    }
+    add_to_string_string(error_message,"Undefined error\n");
+    *status = -1;
     return answer;
 }
-enum run_errors read_line(operations* ops, compile_options* comp_ops,string** buff,FILE* file,unsigned long int* str_index,string* error_message,unsigned int base_assign, unsigned int base_input, unsigned int base_output) {
+enum run_errors read_line(operations* ops, compile_options* comp_ops,trie* variables_data,unsigned int* answer,string** buff,FILE* file,unsigned long int* str_index,string* error_message,unsigned int base_assign, unsigned int base_input, unsigned int base_output) {
     clear_string(error_message);
     if (file == NULL) {
         return 0;
@@ -877,7 +909,6 @@ enum run_errors read_line(operations* ops, compile_options* comp_ops,string** bu
     clear_string(buff[0]);
     clear_string(buff[1]);
     clear_string(buff[2]);
-    unsigned int answer = 0;
     int status = 0;
     int after_func = 0;
     int is_comment = 0;
@@ -958,14 +989,20 @@ enum run_errors read_line(operations* ops, compile_options* comp_ops,string** bu
                 return run_error;
             }
             else {
-                add_to_string(str_to_write, letter);
-                answer = equation_recog(buff[2],ops,comp_ops,base_assign,base_input,base_output,&k,&status,&after_func,0,error_message,*str_index);
+//                add_to_string(str_to_write, letter);
+                *answer = equation_recog(buff[2],ops,comp_ops,variables_data,base_assign,base_input,base_output,&k,&status,&after_func,0,error_message,*str_index);
                 if (status < 0){
                     return run_error;
                 }
-                if (k+1 < buff[2]->current_size){
+                if (k < buff[2]->current_size){
                     return too_many_arguments;
                     //TODO если передать переменную как парамет через пробел то он это съест потому что пробелы убираются бляяяяя
+                }
+                if (status == 1){
+                    return success;
+                }
+                else if (status == 2){
+                    return init_val;
                 }
                 return success;
             }
@@ -977,6 +1014,9 @@ enum run_errors read_line(operations* ops, compile_options* comp_ops,string** bu
     add_to_string_string(error_message, "Error: expected ; or ] line: ");
     add_number_to_string(error_message, *str_index);
     add_to_string(error_message, '\n');
+    clear_string(buff[0]);
+    clear_string(buff[1]);
+    clear_string(buff[2]);
     return run_error;
 }
 
@@ -987,23 +1027,155 @@ void run(operations* ops,compile_options* comp_ops,FILE* run_file, int debug_sta
         return ;
     }
     int status;
+    unsigned int answer = 0;
+    trie_node* variable_info;
+    trie_node* variable_info2;
     string* buff[3] = {create_string(&status), create_string(&status),create_string(&status)};
-        switch (read_line(ops,comp_ops,buff,run_file,&str_index,error_message,base_assign,base_input,base_output)) {
-            case run_error:
-                return;
-                break;
-            case init:
-                printf("init\n");// если занят только buff[0] это значить что это или вызов функции или обьявления переменной
-                //TODO зарезервировать BREAKPOINT чтобы не было обьявлено переменной с таким именем
-                break;
-            case success:
-                break;
-            case empty:
-                printf("empty file\n");
-                break;
-            case too_many_arguments:
-                printf("too many\n");
-                break;
+    enum run_errors a;
+        while ((a = read_line(ops,comp_ops,variables_data,&answer,buff,run_file,&str_index,error_message,base_assign,base_input,base_output)) != run_error){
+            switch(a){
+                case init:
+                    printf("init\n");// если занят только buff[0] это значит что это или вызов функции или обьявления переменной
+                    if (check_variable(buff[0]) == good_name) {
+                        if (!strcmp(buff[0]->string, "BREAKPOINT")) {
+                            add_to_string_string(error_message, "Error: BREAKPOINT is reserved name");
+                            add_number_to_string(error_message, str_index);
+                            add_to_string(error_message, '\n');
+                        }
+                        variable_info = get_value_from_trie(buff[0], variables_data, &status);
+                        if (variable_info == NULL) {
+                            add_value_to_trie(buff[0], 0, variables_data, &status);
+                        }
+                        else if (variable_info->is_used) {
+                            add_to_string_string(error_message, "Error: variable is already exist");
+                            add_number_to_string(error_message, str_index);
+                            add_to_string(error_message, '\n');
+                        }
+                        else {
+                            add_value_to_trie(buff[0], 0, variables_data, &status);
+                        }
+                    }
+                    else {
+                        add_to_string_string(error_message, "Error: wrong variable name");
+                        add_number_to_string(error_message, str_index);
+                        add_to_string(error_message, '\n');
+                    }
+                    //TODO зарезервировать BREAKPOINT чтобы не было обьявлено переменной с таким именем
+                    break;
+                case success:
+                    if (check_variable(buff[0]) == good_name) {
+                        if (!strcmp(buff[0]->string, "BREAKPOINT")) {
+                            add_to_string_string(error_message, "Error: BREAKPOINT is reserved name");
+                            add_number_to_string(error_message, str_index);
+                            add_to_string(error_message, '\n');
+                        }
+                        add_value_to_trie(buff[0], answer, variables_data, &status);
+                    }
+                    else{
+                        add_to_string_string(error_message, "Error: wrong variable name");
+                        add_number_to_string(error_message, str_index);
+                        add_to_string(error_message, '\n');
+                    }
+                    break;
+                case empty:
+                    printf("empty file\n");
+                    break;
+                case too_many_arguments:
+                    printf("too many\n");
+                    break;
+                case init_val:
+                    if (check_variable(buff[2]) == good_name) {
+                        variable_info = get_value_from_trie(buff[2], variables_data, &status);
+                        if ((variable_info == NULL) || (!variable_info->is_used)) {
+                            add_to_string_string(error_message, "Error: ");
+                            add_to_string_string(error_message, buff[2]->string);
+                            add_to_string_string(error_message, " is not variable at line");
+                            add_number_to_string(error_message, str_index);
+                            add_to_string(error_message, '\n');
+                        } else {
+                            add_value_to_trie(buff[0], variable_info->value, variables_data, &status);
+                        }
+                    }
+                    else{
+                        add_to_string_string(error_message, "Error: wrong variable name");
+                        add_number_to_string(error_message, str_index);
+                        add_to_string(error_message, '\n');
+                    }
+                    break;
+            }
         }
+//        switch (read_line(ops,comp_ops,variables_data,&answer,buff,run_file,&str_index,error_message,base_assign,base_input,base_output)) {
+//            case run_error:
+//                return;
+//                break;
+//            case init:
+//                printf("init\n");// если занят только buff[0] это значит что это или вызов функции или обьявления переменной
+//                if (check_variable(buff[0]) == good_name) {
+//                    if (!strcmp(buff[0]->string, "BREAKPOINT")) {
+//                        add_to_string_string(error_message, "Error: BREAKPOINT is reserved name");
+//                        add_number_to_string(error_message, str_index);
+//                        add_to_string(error_message, '\n');
+//                    }
+//                    variable_info = get_value_from_trie(buff[0], variables_data, &status);
+//                    if (variable_info == NULL) {
+//                        add_value_to_trie(buff[0], 0, variables_data, &status);
+//                    }
+//                    else if (variable_info->is_used) {
+//                        add_to_string_string(error_message, "Error: variable is already exist");
+//                        add_number_to_string(error_message, str_index);
+//                        add_to_string(error_message, '\n');
+//                    }
+//                    else {
+//                        add_value_to_trie(buff[0], 0, variables_data, &status);
+//                    }
+//                }
+//                else {
+//                    add_to_string_string(error_message, "Error: wrong variable name");
+//                    add_number_to_string(error_message, str_index);
+//                    add_to_string(error_message, '\n');
+//                }
+//                //TODO зарезервировать BREAKPOINT чтобы не было обьявлено переменной с таким именем
+//                break;
+//            case success:
+//                if (check_variable(buff[0]) == good_name) {
+//                    if (!strcmp(buff[0]->string, "BREAKPOINT")) {
+//                        add_to_string_string(error_message, "Error: BREAKPOINT is reserved name");
+//                        add_number_to_string(error_message, str_index);
+//                        add_to_string(error_message, '\n');
+//                    }
+//                    add_value_to_trie(buff[0], answer, variables_data, &status);
+//                }
+//                else{
+//                    add_to_string_string(error_message, "Error: wrong variable name");
+//                    add_number_to_string(error_message, str_index);
+//                    add_to_string(error_message, '\n');
+//                }
+//                break;
+//            case empty:
+//                printf("empty file\n");
+//                break;
+//            case too_many_arguments:
+//                printf("too many\n");
+//                break;
+//            case init_val:
+//                if (check_variable(buff[2]) == good_name) {
+//                    variable_info = get_value_from_trie(buff[2], variables_data, &status);
+//                    if ((variable_info == NULL) || (!variable_info->is_used)) {
+//                        add_to_string_string(error_message, "Error: ");
+//                        add_to_string_string(error_message, buff[2]->string);
+//                        add_to_string_string(error_message, " is not variable at line");
+//                        add_number_to_string(error_message, str_index);
+//                        add_to_string(error_message, '\n');
+//                    } else {
+//                        add_value_to_trie(buff[0], variable_info->value, variables_data, &status);
+//                    }
+//                }
+//                else{
+//                    add_to_string_string(error_message, "Error: wrong variable name");
+//                    add_number_to_string(error_message, str_index);
+//                    add_to_string(error_message, '\n');
+//                }
+//                break;
+//        }
 
 }

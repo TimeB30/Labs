@@ -36,6 +36,7 @@ enum run_errors{
     run_error,
     empty,
     too_many_arguments,
+    init_val,
 };
 typedef struct{
     unsigned int size;
@@ -62,6 +63,7 @@ typedef struct tr_nod
     struct tr_nod** trie_nodes;
     unsigned int value;
     char letter;
+    int is_used;
 }trie_node;
 typedef struct
 {
@@ -70,10 +72,11 @@ typedef struct
 
 trie* create_trie();
 void add_value_to_trie(string* variable_name, unsigned int value,trie* tr,int* status);
-unsigned int get_value_from_trie(string* variable_name,trie* tr,int* status);
+trie_node* get_value_from_trie(string* variable_name,trie* tr,int* status);
 
 
 void add_to_string(string* str,char letter);
+void add_to_string_string(string* str,char* name);
 string* create_string(int* status);
 unsigned int strtouint(char* str,unsigned int base,int* status);
 operations* create_operations(int* status);
