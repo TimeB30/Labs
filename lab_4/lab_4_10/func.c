@@ -813,7 +813,7 @@ unsigned int  equation_recog(string* equation,operations* ops, compile_options* 
                         add_to_string_string(error_message,buff_str->string);
                         add_to_string_string(error_message, "' is not a number or variable at line");
                         add_number_to_string(error_message, str_index);
-                        //TODO сделать проверку переменной и добавить в поле значение была эта переменная обьявлена или нет чтоб не обратиться к необьявленной переменной или обьявить одну и ту же переменную дважды 
+                        //TODO сделать  проверку переменной и добавить в поле значение была эта переменная обьявлена или нет чтоб не обратиться к необьявленной переменной или обьявить одну и ту же переменную дважды
                         add_to_string(error_message, '\n');
                         *status = -1;
                         return 1;
