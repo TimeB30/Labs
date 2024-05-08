@@ -37,6 +37,7 @@ enum run_errors{
     empty,
     too_many_arguments,
     init_val,
+    end,
 };
 typedef struct{
     unsigned int size;
@@ -48,7 +49,6 @@ typedef struct{
     string* name;
     int is_binary;
     int priority;
-//    unsigned int  (*func)(unsigned int, unsigned int,int*);
     void* func;
 }operation;
 typedef struct{
@@ -85,24 +85,24 @@ void apply_settings(operations* ops,compile_options* comp_ops,FILE* file,int* st
 void run(operations* ops,compile_options* comp_ops,FILE* run_file, int debug_status,string* error_message,trie* variables_data,unsigned int base_assign, unsigned int base_input,unsigned int base_output);
 
 void inverse(unsigned int* num);
-unsigned int input_inside(unsigned int base_input,int* status);
-unsigned int input(void* base_input, void* not_used,void* status);
-unsigned int output(void* num, void* base, void* not_used);
-unsigned int  output_inside(unsigned int num,unsigned int base);
+void input(unsigned int* num,unsigned int base,string* error_message);
+//unsigned int input(void* base_input, void* not_used,void* status);
+//unsigned int output(void* num, void* base, void* not_used);
+void output(unsigned int* num,unsigned int base,string* error_message);
 void get_settings(FILE* file,unsigned int base_assign, unsigned int base_input, unsigned int base_output);
 
 
-unsigned int add(unsigned int num1, unsigned int num2,int* status);
-unsigned int mult(unsigned int num1, unsigned int num2,int* status);
-unsigned int sub(unsigned int num1, unsigned int num2, int* status);
-unsigned int mod_pow(unsigned int base, unsigned int exp, int* status);
-unsigned int my_div(unsigned int num1, unsigned int num2, int* status);
-unsigned int rem(unsigned int num1, unsigned int num2, int* status);
-unsigned int xor(unsigned int num1, unsigned int num2, int* status);
-unsigned int and(unsigned int num1, unsigned int num2, int* status);
-unsigned int or(unsigned int num1, unsigned int num2,int* status);
+unsigned int add(unsigned int num1, unsigned int num2,string* error_message);
+unsigned int mult(unsigned int num1, unsigned int num2,string* error_message);
+unsigned int sub(unsigned int num1, unsigned int num2,string* error_message);
+unsigned int mod_pow(unsigned int num1, unsigned int num2,string* error_message);
+unsigned int my_div(unsigned int num1, unsigned int num2,string* error_message);
+unsigned int rem(unsigned int num1, unsigned int num2,string* error_message);
+unsigned int xor(unsigned int num1, unsigned int num2,string* error_message);
+unsigned int and(unsigned int num1, unsigned int num2,string* error_message);
+unsigned int or(unsigned int num1, unsigned int num2,string* error_message);
 unsigned int initialize(string* new_name, trie* tr,int* value);
-unsigned int not(unsigned int num1, unsigned int num2,int* status);
+void not(unsigned int* num,unsigned int base,string* error_message);
 
 //
 //unsigned int add(void* num1, void* num2,void* status);
