@@ -72,7 +72,7 @@ typedef struct
 
 trie* create_trie();
 void add_value_to_trie(string* variable_name, unsigned int value,trie* tr,int* status);
-trie_node* get_value_from_trie(string* variable_name,trie* tr,int* status);
+trie_node* get_value_from_trie(string* variable_name,trie* tr);
 
 
 void add_to_string(string* str,char letter);
@@ -84,6 +84,7 @@ compile_options* create_compile_options(int* status);
 void apply_settings(operations* ops,compile_options* comp_ops,FILE* file,int* status,string* error_message);
 void run(operations* ops,compile_options* comp_ops,FILE* run_file, int debug_status,string* error_message,trie* variables_data,unsigned int base_assign, unsigned int base_input,unsigned int base_output);
 
+int init_empty_val(trie* tr,string* variable_name,string* error_message,unsigned long int str_index);
 void inverse(unsigned int* num);
 void input(unsigned int* num,unsigned int base,string* error_message);
 //unsigned int input(void* base_input, void* not_used,void* status);
