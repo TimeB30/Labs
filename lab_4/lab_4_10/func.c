@@ -761,7 +761,7 @@ operation * get_op_info(string* func_name,operations* ops){
     }
     return NULL;
 };
-unsigned int equation_recog(string* equation,operations* ops, compile_options* comp_ops,trie* variables_data,unsigned int base_assign, unsigned int base_input,unsigned int base_output,unsigned int* i,int* status,int* after_func,int is_binary,string* error_message,unsigned int str_index){
+unsigned int* equation_recog(string* equation,operations* ops, compile_options* comp_ops,trie* variables_data,unsigned int base_assign, unsigned int base_input,unsigned int base_output,unsigned int* i,int* status,int* after_func,int is_binary,string* error_message,unsigned int str_index){
     if (*status < 0){
         return NULL;
     }
@@ -795,7 +795,7 @@ unsigned int equation_recog(string* equation,operations* ops, compile_options* c
                 *after_func = 1;
                 (*i)++;
                 if (op->is_binary){
-                    answer = ((unsigned int (*) (unsigned int, unsigned int, string*))op->func)(equation_recog(equation,ops,comp_ops,variables_data,base_assign,base_input,base_output,i,status,&after_func2,1,error_message,str_index),equation_recog(equation,ops,comp_ops,variables_data,base_assign,base_input,base_output,i,status,&after_func2,1,error_message,str_index),error_message);
+                    answer = ((unsigned int (*) (unsigned int, unsigned int, string*))op->func)(*(equation_recog(equation,ops,comp_ops,variables_data,base_assign,base_input,base_output,i,status,&after_func2,1,error_message,str_index)),*(equation_recog(equation,ops,comp_ops,variables_data,base_assign,base_input,base_output,i,status,&after_func2,1,error_message,str_index),error_message));
                     if (error_message->current_size > 0){
                         add_to_string_string(error_message,"at line ");
                         add_number_to_string(error_message,str_index);
