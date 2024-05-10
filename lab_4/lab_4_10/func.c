@@ -809,9 +809,11 @@ int init_empty_val(trie* tr,string* variable_name,string* error_message,unsigned
     }
     //TODO зарезервировать BREAKPOINT чтобы не было обьявлено переменной с таким именем
 }
+
 unsigned int* equation_recog(string* equation,operations* ops, compile_options* comp_ops,trie* variables_data,unsigned int* answer,
                              unsigned int base_assign, unsigned int base_input,unsigned int base_output,
-                             unsigned int* i,int* status,int* after_func,int is_binary,string* error_message,unsigned int str_index){
+                             unsigned int* i,int* status,int* after_func,int is_binary,string* error_message,unsigned int str_index,
+                             void (*i_func) (unsigned int*),int (*comparator)(unsigned int*, unsigned int)){
 //    if (*status < 0){
 //        return NULL;
 //    }
@@ -839,7 +841,7 @@ unsigned int* equation_recog(string* equation,operations* ops, compile_options* 
     trie_node* variable_info;
     unsigned int param1;
     unsigned int param2;
-    while (*i < equation->current_size){
+    while (comparator(i,equation->current_size)){
         if ((equation->string[*i] == '(')){
             op = get_op_info(buff_str,ops);
             if (op == NULL){
@@ -854,15 +856,15 @@ unsigned int* equation_recog(string* equation,operations* ops, compile_options* 
             }
             else{
                 *after_func = 1;
-                (*i)++;
+                i_func(i);
                 if (op->is_binary){
-                    check = equation_recog(equation,ops,comp_ops,variables_data,answer,base_assign,base_input,base_output,i,status,&after_func2,1,error_message,str_index);
+                    check = equation_recog(equation,ops,comp_ops,variables_data,answer,base_assign,base_input,base_output,i,status,&after_func2,1,error_message,str_index,i_func,comparator);
                     if (check == NULL){
                         delete_string(buff_str);
                         return NULL;
                     }
                     param1 = *check;
-                    check = equation_recog(equation,ops,comp_ops,variables_data,answer,base_assign,base_input,base_output,i,status,&after_func2,1,error_message,str_index);
+                    check = equation_recog(equation,ops,comp_ops,variables_data,answer,base_assign,base_input,base_output,i,status,&after_func2,1,error_message,str_index,i_func,comparator);
                     if (check == NULL){
                         delete_string(buff_str);
                         return NULL;
@@ -886,7 +888,7 @@ unsigned int* equation_recog(string* equation,operations* ops, compile_options* 
                     else{
                         base = base_output;
                     }
-                    check = equation_recog(equation,ops,comp_ops,variables_data,answer,base_assign,base_input,base_output,i,status,&after_func2,0,error_message,str_index);
+                    check = equation_recog(equation,ops,comp_ops,variables_data,answer,base_assign,base_input,base_output,i,status,&after_func2,0,error_message,str_index,i_func,comparator);
                     if (check == NULL){
                         delete_string(buff_str);
                         return NULL;
@@ -912,11 +914,11 @@ unsigned int* equation_recog(string* equation,operations* ops, compile_options* 
                 if (*after_func) {
                     *after_func = 0;
                     clear_string(buff_str);
-                    (*i)++;
+                    i_func(i);
                     continue;
                 }
                 else {
-                    (*i)++;
+                    i_func(i);
                     *answer = strtouint(buff_str->string, base_assign, status);
                     if (*status < 0) {
 //                        *status = 0;
@@ -960,12 +962,12 @@ unsigned int* equation_recog(string* equation,operations* ops, compile_options* 
                 return NULL;
             }
             if (*after_func) {
-                (*i)++;
+                i_func(i);
                 clear_string(buff_str);
                 continue;
             }
             else {
-                (*i)++;
+                i_func(i);
                 *answer = strtouint(buff_str->string,base_assign,status);
                 if (*status < 0){
 //                    *status = 0;
@@ -992,7 +994,7 @@ unsigned int* equation_recog(string* equation,operations* ops, compile_options* 
 
         }
         add_to_string(buff_str,equation->string[*i]);
-        (*i)++;
+        i_func(i);
     }
     if (buff_str->current_size == 0){
         add_to_string_string(error_message, "Error: expected more variable or num at line ");
@@ -1197,12 +1199,86 @@ int check_rvalue(string* str_to_write,FILE* file,string* error_message,unsigned 
 //    add_to_string(error_message, '\n');
 //    return run_error;
 //}
+void infix_read(FILE* file,string* str,int* str_index){
+    char letter;
+    int is_comment = 0;
+    int is_line_comment = 0;
+    while((letter = fgetc(file)) != EOF){
+        if (letter == ']'){
+            is_comment = 0;
+            continue;
+        }
+        else if (is_comment){
+            if (letter == '\n'){
+                (*str_index)++;
+                if (is_line_comment){
+                    is_line_comment = 0;
+                    is_comment = 0;
+                }
+            }
+            continue;
+        }
+        if (letter == '['){
+            is_comment = 1;
+            continue;
+        }
+        if (letter == '#'){
+            is_comment = 1;
+            is_line_comment = 1;
+            continue;
+        }
+        if (letter == '('){
+            infix_read(file,str,str_index);
+        }
+        if (letter == ')'){
+            //TODO если postfix правпило парсинго такое же и если left= то можно пройти     как right    и  в конце на letter == ';' указать что recog(buff[0])
+            return;
+        }
+        if ((letter == ' ') || (letter == '\t')){
+            if(from_letter){
+                separater_met = 0;
+            }
+            from_letter = 0;
+            continue;
+        }
+        if (letter == '\n'){
+            (*str_index)++;
+            if(from_letter){
+                separater_met = 0;
+            }
+            from_letter = 0;
+            continue;
+
+        }
+
+    }
+}
+int comp_prefix(unsigned int* a  , unsigned int b){
+    if (*a < b){
+        return 1;
+    }
+    return 0;
+}
+int comp_postfix(unsigned int* a  , unsigned int b){
+    if (*a > 0){
+        return 1;
+    }
+    return 0;
+}
+void i_plus(unsigned int* i){
+    (*i)++;
+}
+void i_minus(unsigned int* i) {
+    (*i)--;
+}
 enum run_errors read_line(operations* ops, compile_options* comp_ops,trie* variables_data,unsigned int* answer,string** buff,FILE* file,unsigned long int* str_index,string* error_message,unsigned int base_assign, unsigned int base_input, unsigned int base_output) {
     clear_string(error_message);
     if (file == NULL) {
         return 0;
     }
     char letter;
+    void (*i_func) (unsigned int*) = i_plus;
+    int (*comparator) (unsigned int* a, unsigned int b) = comp_prefix;
     clear_string(buff[0]);
     clear_string(buff[1]);
     clear_string(buff[2]);
@@ -1215,7 +1291,11 @@ enum run_errors read_line(operations* ops, compile_options* comp_ops,trie* varia
     unsigned long int from_letter = 0;
     int i = 0;
     unsigned int k = 0;
+    int left = 1;
     string *str_to_write = buff[0];
+    if (!strcmp(comp_ops->str[0]->string,"right=")){
+        left = 0;
+    }
     while ((letter = fgetc(file)) != EOF){
         if (letter == ']'){
             is_comment = 0;
@@ -1257,15 +1337,23 @@ enum run_errors read_line(operations* ops, compile_options* comp_ops,trie* varia
 
         }
         if (letter == '='){
-            if (str_to_write == buff[2]){
-                add_to_string_string(error_message,"Error: second '=' met at lone");
-                add_number_to_string(error_message, *str_index);
-                add_to_string(error_message, '\n');
-                return run_error;
-            }
-            separater_met = 1;
-            add_to_string(buff[1],letter);
-            str_to_write = buff[2];
+                if (str_to_write == buff[2]) {
+                    add_to_string_string(error_message, "Error: second '=' met at lone");
+                    add_number_to_string(error_message, *str_index);
+                    add_to_string(error_message, '\n');
+                    return run_error;
+                }
+                separater_met = 1;
+                add_to_string(buff[1], letter);
+                str_to_write = buff[2];
+                if (!left){
+                    buff[2] = buff[0];
+                    str_to_write = buff[0];
+                }
+                if (!strcmp(comp_ops->str[1]->string, "(op)")) {
+
+                }
+
             continue;
         }
         if ((letter == ',') || (letter == '(') || (letter == ')')){
@@ -1275,8 +1363,13 @@ enum run_errors read_line(operations* ops, compile_options* comp_ops,trie* varia
             continue;
         }
         if (letter == ';'){
+            if (!left){
+                k = buff[2]->current_size;
+                i_func = i_minus;
+                comparator = comp_postfix;
+            }
             if ((buff[1]->current_size == 0) && (buff[2]->current_size == 0)) {
-                if (equation_recog(buff[0],ops,comp_ops,variables_data,answer,base_assign,base_input,base_output,&k,&status,&after_func,0,error_message,*str_index) == NULL){
+                if (equation_recog(buff[0],ops,comp_ops,variables_data,answer,base_assign,base_input,base_output,&k,&status,&after_func,0,error_message,*str_index,i_func,comparator) == NULL){
                     if (init_empty_val(variables_data,buff[0],error_message,*str_index)){
                         return init;
                     }
@@ -1310,7 +1403,7 @@ enum run_errors read_line(operations* ops, compile_options* comp_ops,trie* varia
             }
             else {
 //                add_to_string(str_to_write, letter);
-                if (equation_recog(buff[2],ops,comp_ops,variables_data,answer,base_assign,base_input,base_output,&k,&status,&after_func,0,error_message,*str_index) == NULL){
+                if (equation_recog(buff[2],ops,comp_ops,variables_data,answer,base_assign,base_input,base_output,&k,&status,&after_func,0,error_message,*str_index,i_func,comparator) == NULL){
                     return run_error;
                 }
 //                if (status < 0){
@@ -1318,7 +1411,7 @@ enum run_errors read_line(operations* ops, compile_options* comp_ops,trie* varia
 //                }
                 if (k < buff[2]->current_size){
                     return too_many_arguments;
-                    //TODO если передать переменную как парамет через пробел то он это съест потому что пробелы убираются бляяяяя
+                    //TODO если передать переменную как параметр через пробел то он это съест потому что пробелы убираются бляяяяя
                 }
                 return success;
             }
