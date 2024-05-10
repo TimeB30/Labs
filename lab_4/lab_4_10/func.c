@@ -459,7 +459,7 @@ compile_options* create_compile_options(int* status){
             return NULL;
         }
     }
-    add_to_string_string(opt->str[0],"right=");
+    add_to_string_string(opt->str[0],"left=");
     add_to_string_string(opt->str[1],"op()");
     return opt;
 }
@@ -809,7 +809,15 @@ int init_empty_val(trie* tr,string* variable_name,string* error_message,unsigned
     }
     //TODO зарезервировать BREAKPOINT чтобы не было обьявлено переменной с таким именем
 }
-
+void reverse_str(string* str){
+    char letter;
+    unsigned int middle = (str->current_size)/2;
+    for (int i = 0; i < str->current_size; i++){
+        letter = str->string[i];
+        str->string[i] = str->string[str->current_size - 1 - i];
+        str->string[str->current_size - 1 - i] = letter;
+    }
+}
 unsigned int* equation_recog(string* equation,operations* ops, compile_options* comp_ops,trie* variables_data,unsigned int* answer,
                              unsigned int base_assign, unsigned int base_input,unsigned int base_output,
                              unsigned int* i,int* status,int* after_func,int is_binary,string* error_message,unsigned int str_index,
@@ -843,6 +851,9 @@ unsigned int* equation_recog(string* equation,operations* ops, compile_options* 
     unsigned int param2;
     while (comparator(i,equation->current_size)){
         if ((equation->string[*i] == '(')){
+            if (comp_ops->str[0]->string[0] == 'r'){
+                reverse_str(buff_str);
+            }
             op = get_op_info(buff_str,ops);
             if (op == NULL){
                 add_to_string_string(error_message, "Error: function named '");
@@ -870,7 +881,12 @@ unsigned int* equation_recog(string* equation,operations* ops, compile_options* 
                         return NULL;
                     }
                     param2 = *check;
-                    *answer = ((unsigned int (*) (unsigned int, unsigned int, string*))op->func)(param1,param2,error_message);
+                    if (comp_ops->str[1]->string[0] == 'r'){
+                        *answer = ((unsigned int (*) (unsigned int, unsigned int, string*))op->func)(param2,param1,error_message);
+                    }
+                    else {
+                        *answer = ((unsigned int (*)(unsigned int, unsigned int, string *)) op->func)(param1, param2,error_message);
+                    }
                     if (error_message->current_size > 0){
                         add_to_string_string(error_message,"at line ");
                         add_number_to_string(error_message,str_index);
@@ -909,6 +925,9 @@ unsigned int* equation_recog(string* equation,operations* ops, compile_options* 
 
         }
         else if (equation->string[*i] == ','){
+            if (comp_ops->str[0]->string[0] == 'r'){
+                reverse_str(buff_str);
+            }
             //TODO наверное если после завершения программы i < current_size значит было передано больше параметров чем 1 или 2  проверить! на первый тест так и работает без подсчета запятых но почему ?
             if (is_binary) {
                 if (*after_func) {
@@ -953,6 +972,9 @@ unsigned int* equation_recog(string* equation,operations* ops, compile_options* 
             }
         }
         else if (equation->string[*i] == ')'){
+            if (comp_ops->str[0]->string[0] == 'r'){
+                reverse_str(buff_str);
+            }
             if (buff_str->current_size == 0){
                 add_to_string_string(error_message, "Error: no parameter given at line ");
                 add_number_to_string(error_message, str_index);
@@ -996,6 +1018,9 @@ unsigned int* equation_recog(string* equation,operations* ops, compile_options* 
         add_to_string(buff_str,equation->string[*i]);
         i_func(i);
     }
+    if (comp_ops->str[0]->string[0] == 'r'){
+        reverse_str(buff_str);
+    }
     if (buff_str->current_size == 0){
         add_to_string_string(error_message, "Error: expected more variable or num at line ");
         add_number_to_string(error_message, str_index);
@@ -1021,238 +1046,7 @@ unsigned int* equation_recog(string* equation,operations* ops, compile_options* 
     delete_string(buff_str);
     return answer;
 }
-int check_rvalue(string* str_to_write,FILE* file,string* error_message,unsigned long int* str_index,char* letter){
-    if ((str_to_write == NULL) || (file == NULL) || (error_message == NULL)){
-        return  1;
-    }
-    int from_letter = 0;
-    int separater_met = 1;
-    while ((*letter = fgetc(file)) != EOF){
-        if ((*letter == ' ') || (*letter == '\t')){
-            if(from_letter){
-                separater_met = 0;
-            }
-            from_letter = 0;
-            continue;
-        }
-        if (*letter == '\n'){
-            (*str_index)++;
-            if(from_letter){
-                separater_met = 0;
-            }
-            from_letter = 0;
-            continue;
 
-        }
-        if ((*letter == '(') || (*letter == ',')){
-            separater_met = 1;
-            continue;
-        }
-        if (*letter == ';'){
-            return 1;
-        }
-        if (separater_met == 0){
-            add_to_string_string(error_message,"Error: function or variable name error at line ");
-            add_to_string_string(error_message,str_to_write->string);
-            add_to_string(error_message,'\n');
-            return 0;
-        }
-        add_to_string(str_to_write,*letter);
-        from_letter = 1;
-    }
-    return 1;
-}
-//enum run_errors read_line(operations* ops, compile_options* comp_ops,trie* variables_data,unsigned int* answer,string** buff,FILE* file,unsigned long int* str_index,string* error_message,unsigned int base_assign, unsigned int base_input, unsigned int base_output) {
-//    clear_string(error_message);
-//    if (file == NULL) {
-//        return 0;
-//    }
-//    char letter;
-//    clear_string(buff[0]);
-//    clear_string(buff[1]);
-//    clear_string(buff[2]);
-//    int status = 0;
-//    int after_func = 0;
-//    int is_comment = 0;
-//    int is_line_comment = 0;
-//    int skip_space = 1;
-//    unsigned long int from_letter = 0;
-//    int i = 0;
-//    unsigned int k = 0;
-//    string *str_to_write = buff[0];
-//    while ((letter = fgetc(file)) != EOF) {
-////        if (letter == ']'){
-////            is_comment = 0;
-//            continue;
-//        }
-//        else if (is_comment){
-//            if (letter == '\n'){
-//                (*str_index)++;
-//                if (is_line_comment){
-//                    is_line_comment = 0;
-//                    is_comment = 0;
-//                }
-//            }
-//            continue;
-//        }
-//        else if (letter == ' ') {
-//            if (from_letter == 1) {
-//                if (str_to_write == buff[0]) {
-//                    str_to_write = buff[1];
-//                    from_letter = 0;
-//                }
-//            }
-//            if (skip_space){
-//                continue;
-//            }
-//            add_to_string(str_to_write,letter);
-//        }
-//        else if (letter == '\t') {
-//            continue;
-//        }
-//        else if (letter == '\n') {
-//            (*str_index)++;
-//            continue;
-//        }
-//        else if (letter == '['){
-//            is_comment = 1;
-//            continue;
-//        }
-//        else if (letter == '#'){
-//            is_line_comment = 1;
-//            is_comment = 1;
-//            continue;
-//        }
-//        else if (letter == '=') {
-//            if (str_to_write == buff[0]) {
-//                str_to_write = buff[1];
-//            } else if (buff[1]->current_size > 0) {
-//                add_to_string_string(error_message, "Error: wrong variable name at  line: ");
-//                add_number_to_string(error_message, *str_index);
-//                add_to_string(error_message, '\n');
-//                return run_error;
-//            }
-//            add_to_string(str_to_write, letter);
-//            str_to_write = buff[2];
-//            if (!check_rvalue(str_to_write,file,error_message,str_index,&letter)){
-//                 return run_error;
-//            }
-//        }
-//        if (letter == ';') {
-//            if ((buff[1]->current_size == 0) && (buff[2]->current_size == 0)) {
-//                if (equation_recog(buff[0],ops,comp_ops,variables_data,answer,base_assign,base_input,base_output,&k,&status,&after_func,0,error_message,*str_index) == NULL){
-//                    if (init_empty_val(variables_data,buff[0],error_message,*str_index)){
-//                        return init;
-//                    }
-//                    clear_string(error_message);
-//                    add_to_string_string(error_message,"Error: wrong variable name or check function '");
-//                    add_to_string_string(error_message,buff[0]->string);
-//                    add_to_string_string(error_message,"' at line ");
-//                    add_number_to_string(error_message, *str_index);
-//                    add_to_string(error_message, '\n');
-//                    return run_error;
-//                }
-//                else{
-//                    return init;
-//                }
-//            } else if ((buff[2]->current_size > 0) && (buff[1]->current_size == 0)) {
-//                add_to_string_string(error_message, "Error: expected = at  line: ");
-//                add_number_to_string(error_message, *str_index);
-//                add_to_string(error_message, '\n');
-//                return run_error;
-//            } else if ((buff[1]->current_size > 0) && (buff[2]->current_size == 0)) {
-//                add_to_string_string(error_message, "Error: expected rvalue at  line: ");
-//                add_number_to_string(error_message, *str_index);
-//                add_to_string(error_message, '\n');
-//                return run_error;
-//            }
-//            else if (buff[0]->current_size == 0){
-//                add_to_string_string(error_message, "Error: expected variable name  at  line: ");
-//                add_number_to_string(error_message, *str_index);
-//                add_to_string(error_message, '\n');
-//                return run_error;
-//            }
-//            else {
-////                add_to_string(str_to_write, letter);
-//                if (equation_recog(buff[2],ops,comp_ops,variables_data,answer,base_assign,base_input,base_output,&k,&status,&after_func,0,error_message,*str_index) == NULL){
-//                    return run_error;
-//                }
-////                if (status < 0){
-////                    return run_error;
-////                }
-//                if (k < buff[2]->current_size){
-//                    return too_many_arguments;
-//                    //TODO если передать переменную как парамет через пробел то он это съест потому что пробелы убираются бляяяяя
-//                }
-//                return success;
-//            }
-//        }
-//        from_letter = 1;
-//        add_to_string(str_to_write, letter);
-//
-//    }
-//    if (buff[0]->current_size == 0){
-//        return end;
-//    }
-//    add_to_string_string(error_message, "Error: expected ; or ] line: ");
-//    add_number_to_string(error_message, *str_index);
-//    add_to_string(error_message, '\n');
-//    return run_error;
-//}
-void infix_read(FILE* file,string* str,int* str_index){
-    char letter;
-    int is_comment = 0;
-    int is_line_comment = 0;
-    while((letter = fgetc(file)) != EOF){
-        if (letter == ']'){
-            is_comment = 0;
-            continue;
-        }
-        else if (is_comment){
-            if (letter == '\n'){
-                (*str_index)++;
-                if (is_line_comment){
-                    is_line_comment = 0;
-                    is_comment = 0;
-                }
-            }
-            continue;
-        }
-        if (letter == '['){
-            is_comment = 1;
-            continue;
-        }
-        if (letter == '#'){
-            is_comment = 1;
-            is_line_comment = 1;
-            continue;
-        }
-        if (letter == '('){
-            infix_read(file,str,str_index);
-        }
-        if (letter == ')'){
-            //TODO если postfix правпило парсинго такое же и если left= то можно пройти     как right    и  в конце на letter == ';' указать что recog(buff[0])
-            return;
-        }
-        if ((letter == ' ') || (letter == '\t')){
-            if(from_letter){
-                separater_met = 0;
-            }
-            from_letter = 0;
-            continue;
-        }
-        if (letter == '\n'){
-            (*str_index)++;
-            if(from_letter){
-                separater_met = 0;
-            }
-            from_letter = 0;
-            continue;
-
-        }
-
-    }
-}
 int comp_prefix(unsigned int* a  , unsigned int b){
     if (*a < b){
         return 1;
@@ -1338,7 +1132,7 @@ enum run_errors read_line(operations* ops, compile_options* comp_ops,trie* varia
         }
         if (letter == '='){
                 if (str_to_write == buff[2]) {
-                    add_to_string_string(error_message, "Error: second '=' met at lone");
+                    add_to_string_string(error_message, "Error: second '=' met at line ");
                     add_number_to_string(error_message, *str_index);
                     add_to_string(error_message, '\n');
                     return run_error;
