@@ -1,9 +1,14 @@
-[ff = 2 add 5;
-ff = !ff mult 2;
-(!ff output add 5 output) output;
-1 add !ff output mult 2;
-(2 add 0 output mult 2) output;]
-a = 2;
-#output(!a);
-output(add(output(25),25));
-#output((add(output(25),25)));
+# op() left=
+
+[a = 2;
+b = !a;
+c = 5;
+c = 2;
+c = 3;]
+#output(5);
+#add(   25   ,   25);
+!c;
+c = 4;
+add(25,2);
+b = add(25,2);
+output(!b);

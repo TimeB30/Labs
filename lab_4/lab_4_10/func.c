@@ -754,8 +754,8 @@ enum run_errors check_variable(string* variable_name){
     if ((variable_name->string[0] > 47) && (variable_name->string[0] < 58)){
         return name_error;
     }
-    for (int i = 0; i < variable_name->current_size; i++){
-        if (!((isalnum(variable_name->string[i])) || (variable_name->string[i] == '_'))){
+    for (int i = 1; i < variable_name->current_size; i++){
+        if ((!(isalnum(variable_name->string[i])) || (variable_name->string[i] == '_'))){
             return name_error;
         }
 
@@ -770,10 +770,17 @@ operation * get_op_info(string* func_name,operations* ops){
     }
     return NULL;
 };
+void move_left(string* str){
+    for (int i = 0; i < str->current_size; i++){
+        str->string[i] = str->string[i+1];
+    }
+    str->current_size--;
+}
 int init_empty_val(trie* tr,string* variable_name,string* error_message,unsigned long int str_index){
     clear_string(error_message);
     int status = 0;
     trie_node* variable_info;
+    move_left(variable_name);
     if (check_variable(variable_name) == good_name) {
         if (!strcmp(variable_name->string, "BREAKPOINT")) {
             add_to_string_string(error_message, "Error: BREAKPOINT is reserved name");
@@ -782,15 +789,15 @@ int init_empty_val(trie* tr,string* variable_name,string* error_message,unsigned
             return 0;
         }
         variable_info = get_value_from_trie(variable_name, tr);
-        if (variable_info == NULL) {
+        if ((variable_info == NULL) || variable_info->is_used == 0) {
             add_value_to_trie(variable_name, 0, tr, &status);
-            return 1;
             if (status < 0) {
-                add_to_string_string(error_message, "Error: Memory allocation error");
+                add_to_string_string(error_message, "Error: can't add new variable");
                 add_number_to_string(error_message, str_index);
                 add_to_string(error_message, '\n');
                 return 0;
             }
+            return 1;
         }
         else if (variable_info->is_used) {
             add_to_string_string(error_message, "Error: variable '");
@@ -800,13 +807,16 @@ int init_empty_val(trie* tr,string* variable_name,string* error_message,unsigned
             add_to_string(error_message, '\n');
             return 0;
         }
-        else {
-            add_value_to_trie(variable_name, 0, tr, &status);
-            add_to_string_string(error_message, "Error: Memory allocation error");
-            add_number_to_string(error_message, str_index);
-            add_to_string(error_message, '\n');
-            return 0;
-        }
+//        else {
+//            add_value_to_trie(variable_name, 0, tr, &status);
+//            if (status < 0) {
+//                add_to_string_string(error_message, "Error: can't add new variable");
+//                add_number_to_string(error_message, str_index);
+//                add_to_string(error_message, '\n');
+//                return 0;
+//            }
+//            return 1;
+//        }
     }
     else {
         add_to_string_string(error_message, "Error: wrong variable name '");
@@ -832,13 +842,13 @@ unsigned int* equation_recog(string* equation,operations* ops, compile_options* 
                              unsigned int base_assign, unsigned int base_input,unsigned int base_output,
                              int* i,int* status,int* after_func,int is_binary,string* error_message,unsigned int str_index,
                              void (*i_func) (int*),int (*comparator)(int*, unsigned int),string* buff_str){
-    *status = 0;
+//    *status = 0;
     clear_string(buff_str);
     clear_string(error_message);
     unsigned int* check;
 //    string* buff_str = create_string(status);
     if (*status < 0){
-        add_to_string_string(error_message, "Memory allocation error at line");
+        add_to_string_string(error_message, "Memory allocation error at line at line");
         add_number_to_string(error_message, str_index);
         add_to_string(error_message,'\n');
         return NULL;
@@ -896,7 +906,6 @@ unsigned int* equation_recog(string* equation,operations* ops, compile_options* 
                         add_to_string(error_message,'\n');
                         return NULL;
                     }
-
                 }
                 else{
                     if (!strcmp(op->realname->string,"input")){
@@ -927,6 +936,12 @@ unsigned int* equation_recog(string* equation,operations* ops, compile_options* 
             }
             //TODO наверное если после завершения программы i < current_size значит было передано больше параметров чем 1 или 2  проверить! на первый тест так и работает без подсчета запятых но почему ?
             if (is_binary) {
+                if (buff_str->current_size == 0){
+                    add_to_string_string(error_message, "Error: no parameter given at line ");
+                    add_number_to_string(error_message, str_index);
+                    add_to_string(error_message, '\n');
+                    return NULL;
+                }
                 if (*after_func) {
                     *after_func = 0;
                     clear_string(buff_str);
@@ -942,7 +957,7 @@ unsigned int* equation_recog(string* equation,operations* ops, compile_options* 
                         }
                         add_to_string_string(error_message, "Error: parameter '");
                         add_to_string_string(error_message,buff_str->string);
-                        add_to_string_string(error_message, "' is not  variable at line");
+                        add_to_string_string(error_message, "' is not  variable at line ");
                         add_number_to_string(error_message, str_index);
                         //TODO сделать  проверку переменной и добавить в поле значение была эта переменная обьявлена или нет чтоб не обратиться к необьявленной переменной или обьявить одну и ту же переменную дважды
                         add_to_string(error_message, '\n');
@@ -952,7 +967,7 @@ unsigned int* equation_recog(string* equation,operations* ops, compile_options* 
                     if (*status < 0) {
                         add_to_string_string(error_message, "Error: parameter '");
                         add_to_string_string(error_message,buff_str->string);
-                        add_to_string_string(error_message, "' is not a number at line");
+                        add_to_string_string(error_message, "' is not a number at line ");
                         add_number_to_string(error_message, str_index);
                         //TODO сделать  проверку переменной и добавить в поле значение была эта переменная обьявлена или нет чтоб не обратиться к необьявленной переменной или обьявить одну и ту же переменную дважды
                         add_to_string(error_message, '\n');
@@ -964,7 +979,7 @@ unsigned int* equation_recog(string* equation,operations* ops, compile_options* 
                 }
             }
             else {
-                add_to_string_string(error_message, " expected ( or too many arguments  at line ");
+                add_to_string_string(error_message, "Error: too many parameters given  at line ");
                 add_number_to_string(error_message, str_index);
                 add_to_string(error_message, '\n');
                 return NULL;
@@ -995,7 +1010,7 @@ unsigned int* equation_recog(string* equation,operations* ops, compile_options* 
                     }
                     add_to_string_string(error_message, "Error: parameter '");
                     add_to_string_string(error_message,buff_str->string);
-                    add_to_string_string(error_message, "' is not  variable at line");
+                    add_to_string_string(error_message, "' is not  variable at line ");
                     add_number_to_string(error_message, str_index);
                     //TODO сделать  проверку переменной и добавить в поле значение была эта переменная обьявлена или нет чтоб не обратиться к необьявленной переменной или обьявить одну и ту же переменную дважды
                     add_to_string(error_message, '\n');
@@ -1005,7 +1020,7 @@ unsigned int* equation_recog(string* equation,operations* ops, compile_options* 
                 if (*status < 0) {
                     add_to_string_string(error_message, "Error: parameter '");
                     add_to_string_string(error_message,buff_str->string);
-                    add_to_string_string(error_message, "' is not a number at line");
+                    add_to_string_string(error_message, "' is not a number at line ");
                     add_number_to_string(error_message, str_index);
                     //TODO сделать  проверку переменной и добавить в поле значение была эта переменная обьявлена или нет чтоб не обратиться к необьявленной переменной или обьявить одну и ту же переменную дважды
                     add_to_string(error_message, '\n');
@@ -1043,7 +1058,7 @@ unsigned int* equation_recog(string* equation,operations* ops, compile_options* 
     if (*status < 0) {
         add_to_string_string(error_message, "Error: parameter '");
         add_to_string_string(error_message,buff_str->string);
-        add_to_string_string(error_message, "' is not a number at line");
+        add_to_string_string(error_message, "' is not a number at line ");
         add_number_to_string(error_message, str_index);
         //TODO сделать  проверку переменной и добавить в поле значение была эта переменная обьявлена или нет чтоб не обратиться к необьявленной переменной или обьявить одну и ту же переменную дважды
         add_to_string(error_message, '\n');
@@ -1113,7 +1128,7 @@ unsigned int*  infix_equation_recog(string* equation,operations* ops,trie* varia
                             if (*status < 0) {
                                 add_to_string_string(error_message,"Error: '");
                                 add_to_string_string(error_message,buff1->string);
-                                add_to_string_string(error_message,"' is not a number at line");
+                                add_to_string_string(error_message,"' is not a number at line ");
                                 add_number_to_string(error_message,*str_index);
                                 add_to_string(error_message,'\n');
                                 return NULL;
@@ -1235,7 +1250,7 @@ unsigned int*  infix_equation_recog(string* equation,operations* ops,trie* varia
         if (*status < 0){
             add_to_string_string(error_message,"Error: '");
             add_to_string_string(error_message,buff1->string);
-            add_to_string_string(error_message,"' is not a number at line");
+            add_to_string_string(error_message,"' is not a number at line ");
             add_number_to_string(error_message,*str_index);
             add_to_string(error_message,'\n');
             return NULL;
@@ -1403,27 +1418,38 @@ enum run_errors read_line(operations* ops, compile_options* comp_ops,trie* varia
             }
             else if ((buff[1]->current_size == 0) && (buff[2]->current_size == 0)) {
                 if (buff[0]->string[0] == '!'){
-                    if (init_empty_val(variables_data,buff[0],error_message,*str_index)){
-                        return init;
-                    }
-                    add_to_string_string(error_message,"Error: wrong variable name'");
-                    add_to_string_string(error_message,buff[0]->string);
-                    add_to_string_string(error_message,"' at line ");
-                    add_number_to_string(error_message, *str_index);
-                    add_to_string(error_message, '\n');
+                    *answer = 0;
+                    error_message->current_size = 1;
+                    return success;
                 }
+//                    add_to_string_string(error_message,"Error: wrong variable name'");
+//                    add_to_string_string(error_message,buff[0]->string);
+//                    add_to_string_string(error_message,"' at line ");
+//                    add_number_to_string(error_message, *str_index);
+//                    add_to_string(error_message, '\n');
+//                    return run_error;
+
                 if (equation_recog(buff[0],ops,comp_ops,variables_data,answer,base_assign,base_input,base_output,&k,&status,&after_func,0,error_message,*str_index,i_func,comparator,buff[1]) == NULL){
                     return run_error;
                 }
-                else{
-                    return good_name;
+                if (k < buff[0]->current_size){
+                    add_to_string_string(error_message,"Error: too many arguments given '");
+                    add_to_string_string(error_message,buff[0]->string);
+                    add_to_string_string(error_message,"' at line ");
+                    add_number_to_string(error_message,*str_index);
+                    add_to_string(error_message,'\n');
+                    return run_error;
+                    //TODO если передать переменную как параметр через пробел то он это съест потому что пробелы убираются бляяяяя done
                 }
-            } else if ((buff[2]->current_size > 0) && (buff[1]->current_size == 0)) {
+                return good_name;
+            }
+            else if ((buff[2]->current_size > 0) && (buff[1]->current_size == 0)) {
                 add_to_string_string(error_message, "Error: expected = at  line: ");
                 add_number_to_string(error_message, *str_index);
                 add_to_string(error_message, '\n');
                 return run_error;
-            } else if ((buff[1]->current_size > 0) && (buff[2]->current_size == 0)) {
+            }
+            else if ((buff[1]->current_size > 0) && (buff[2]->current_size == 0)) {
                 add_to_string_string(error_message, "Error: expected rvalue at  line: ");
                 add_number_to_string(error_message, *str_index);
                 add_to_string(error_message, '\n');
@@ -1440,11 +1466,13 @@ enum run_errors read_line(operations* ops, compile_options* comp_ops,trie* varia
                 if (equation_recog(buff[2],ops,comp_ops,variables_data,answer,base_assign,base_input,base_output,&k,&status,&after_func,0,error_message,*str_index,i_func,comparator,buff[1]) == NULL){
                     return run_error;
                 }
-//                if (status < 0){
-//                    return run_error;
-//                }
                 if (k < buff[2]->current_size){
-                    return too_many_arguments;
+                    add_to_string_string(error_message,"Error: too many arguments given '");
+                    add_to_string_string(error_message,buff[2]->string);
+                    add_to_string_string(error_message,"' at line ");
+                    add_number_to_string(error_message,*str_index);
+                    add_to_string(error_message,'\n');
+                    return run_error;
                     //TODO если передать переменную как параметр через пробел то он это съест потому что пробелы убираются бляяяяя done
                 }
                 return success;
@@ -1485,8 +1513,23 @@ void run(operations* ops,compile_options* comp_ops,FILE* run_file, int debug_sta
                 case success:
                     printf("success\n");
                     if (check_variable(buff[0]) == good_name) {
+                        if (error_message->current_size == 1){
+                            variable_info = get_value_from_trie(buff[0],variables_data);
+                            if (variable_info != NULL){
+                                if (variable_info->is_used){
+                                    clear_string(error_message);
+                                    add_to_string_string(error_message,"Variable '");
+                                    add_to_string_string(error_message,buff[0]->string);
+                                    add_to_string_string(error_message,"' already exist at line ");
+                                    add_number_to_string(error_message,str_index);
+                                    add_to_string(error_message,'\n');
+                                    return;
+                                }
+                            }
+                            move_left(buff[0]);
+                        }
                         if (!strcmp(buff[0]->string, "BREAKPOINT")) {
-                            add_to_string_string(error_message, "Error: BREAKPOINT is reserved name");
+                            add_to_string_string(error_message, "Error: BREAKPOINT is reserved name at line ");
                             add_number_to_string(error_message, str_index);
                             add_to_string(error_message, '\n');
                             return;
@@ -1507,28 +1550,6 @@ void run(operations* ops,compile_options* comp_ops,FILE* run_file, int debug_sta
                     break;
                 case too_many_arguments:
                     printf("too many\n");
-                    break;
-                case init_val:
-                    printf("init val\n");
-                    if (check_variable(buff[2]) == good_name) {
-                        variable_info = get_value_from_trie(buff[2], variables_data);
-                        if ((variable_info == NULL) || (!variable_info->is_used)) {
-                            add_to_string_string(error_message, "Error: ");
-                            add_to_string_string(error_message, buff[2]->string);
-                            add_to_string_string(error_message, " is not variable at line");
-                            add_number_to_string(error_message, str_index);
-                            add_to_string(error_message, '\n');
-                            return;
-                        } else {
-                            add_value_to_trie(buff[0], variable_info->value, variables_data, &status);
-                        }
-                    }
-                    else{
-                        add_to_string_string(error_message, "Error: wrong variable name");
-                        add_number_to_string(error_message, str_index);
-                        add_to_string(error_message, '\n');
-                        return;
-                    }
                     break;
                 case end:
                     return;

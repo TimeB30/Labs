@@ -77,5 +77,4 @@ int main(int argc, char** argv){
     run(ops,comp_ops,run_file,0,error_message,tr,base_assign,base_input,base_output);
     print_string(error_message);
     return 0;
-
 }
