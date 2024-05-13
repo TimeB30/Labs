@@ -86,10 +86,10 @@ void run(operations* ops,compile_options* comp_ops,FILE* run_file, int debug_sta
 
 int init_empty_val(trie* tr,string* variable_name,string* error_message,unsigned long int str_index);
 void inverse(unsigned int* num);
-void input(unsigned int* num,unsigned int base,string* error_message);
+int input(unsigned int* num,unsigned int base,string* error_message);
 //unsigned int input(void* base_input, void* not_used,void* status);
 //unsigned int output(void* num, void* base, void* not_used);
-void output(unsigned int* num,unsigned int base,string* error_message);
+int output(unsigned int* num,unsigned int base,string* error_message);
 void get_settings(FILE* file,unsigned int base_assign, unsigned int base_input, unsigned int base_output);
 
 
@@ -103,7 +103,7 @@ unsigned int xor(unsigned int num1, unsigned int num2,string* error_message);
 unsigned int and(unsigned int num1, unsigned int num2,string* error_message);
 unsigned int or(unsigned int num1, unsigned int num2,string* error_message);
 unsigned int initialize(string* new_name, trie* tr,int* value);
-void not(unsigned int* num,unsigned int base,string* error_message);
+int not(unsigned int* num,unsigned int base,string* error_message);
 
 //
 //unsigned int add(void* num1, void* num2,void* status);

@@ -70,6 +70,10 @@ int main(int argc, char** argv){
     compile_options* comp_ops = create_compile_options(&status);
     string* error_message = create_string(&status);
     apply_settings(ops,comp_ops,file_settings,&status, error_message);
+    print_string(error_message);
+    if (error_message->current_size > 0){
+        return 0;
+    }
     run(ops,comp_ops,run_file,0,error_message,tr,base_assign,base_input,base_output);
     print_string(error_message);
     return 0;
