@@ -1,25 +1,8 @@
-
-2024-04-01 02:48:39  NEW_REQUEST application №4 was received by department №9
-2024-04-01 00:42:22  NEW_REQUEST application №10 was received by department №4
-2024-04-01 01:08:37  NEW_REQUEST application №15 was received by department №7
-2024-04-01 02:49:00  REQUEST_HANDLING_STARTED application № 10 handled by operator KNPJMDENK department № 4
-2024-04-01 02:49:00  REQUEST_HANDLING_STARTED application № 15 handled by operator CSUJUJYAK department № 7
-2024-04-01 02:49:00  REQUEST_HANDLING_STARTED application № 4 handled by operator HYHEBPQEJ department № 9
-2024-04-01 02:49:01  REQUEST_HANDLING_FINISHED work on application № 10 finished by operator KNPJMDENK department № 4
-2024-04-01 02:49:01  REQUEST_HANDLING_FINISHED work on application № 15 finished by operator CSUJUJYAK department № 7
-2024-04-01 02:49:02  REQUEST_HANDLING_FINISHED work on application № 4 finished by operator HYHEBPQEJ department № 9
-2024-04-01 03:11:27  NEW_REQUEST application №23 was received by department №9
-2024-04-01 00:02:02  NEW_REQUEST application №55 was received by department №5
-2024-04-01 03:12:00  REQUEST_HANDLING_STARTED application № 55 handled by operator SUEKGSNKI department № 5
-2024-04-01 03:12:00  REQUEST_HANDLING_STARTED application № 23 handled by operator VKTQVQCUQ department № 9
-2024-04-01 03:12:01  REQUEST_HANDLING_FINISHED work on application № 55 finished by operator SUEKGSNKI department № 5
-2024-04-01 03:12:01  REQUEST_HANDLING_FINISHED work on application № 23 finished by operator VKTQVQCUQ department № 9
-2024-04-01 04:23:56  NEW_REQUEST application №61 was received by department №4
-2024-04-01 04:24:00  REQUEST_HANDLING_STARTED application № 61 handled by operator BAMKGPAXT department № 4
-2024-04-01 04:24:01  REQUEST_HANDLING_FINISHED work on application № 61 finished by operator BAMKGPAXT department № 4
-2024-04-01 04:35:39  NEW_REQUEST application №87 was received by department №9
-2024-04-01 01:56:14  NEW_REQUEST application №92 was received by department №3
-2024-04-01 04:36:00  REQUEST_HANDLING_STARTED application № 87 handled by operator NOGTYOONA department № 9
-2024-04-01 04:36:00  REQUEST_HANDLING_STARTED application № 92 handled by operator PVKLOGCSC department № 3
-2024-04-01 04:36:02  REQUEST_HANDLING_FINISHED work on application № 87 finished by operator NOGTYOONA department № 9
-2024-04-01 04:36:01  REQUEST_HANDLING_FINISHED work on application № 92 finished by operator PVKLOGCSC department № 3
+2024-04-01 03:38:20  NEW_REQUEST application №24 was received by department №1
+2024-04-01 02:01:20  NEW_REQUEST application №73 was received by department №1
+2024-04-01 03:39:00  REQUEST_HANDLING_STARTED application № 24 handled by operator UMXIPGDSH department № 1
+2024-04-01 03:39:04  REQUEST_HANDLING_FINISHED work on application № 24 finished by operator UMXIPGDSH department № 1
+2024-04-01 03:41:00  REQUEST_HANDLING_STARTED application № 73 handled by operator KARBJLWPA department № 1
+2024-04-01 03:41:04  REQUEST_HANDLING_FINISHED work on application № 73 finished by operator KARBJLWPA department № 1
+2024-04-01 06:45:46  DEPARTMENT_OVERLOADED application №81 was received by department №0 and overloaded, application was sent to department №4
+2024-04-01 06:46:00  REQUEST_HANDLING_STARTED application № 81 handled by operator JDRYDAKAL department № 4

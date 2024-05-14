@@ -21,7 +21,7 @@ int compare_strings_array(char* str,int str_count, char array[][18]){
 void get_date_time_from_user(long* date_time){
     char buff[21];
     buff[0] = 't';
-    while ((str_to_int(buff, &date_time[0]) == 1) || ((date_time[0] <= 0) || (date_time[0] > 2024))) {
+    while ((str_to_int(buff, &date_time[0]) == 1) || ((date_time[0] < 1900) || (date_time[0] > 2024))) {
         printf("Enter year\n");
         scanf("%20s", buff);
         while (getchar() != '\n') {};
@@ -62,13 +62,13 @@ void get_date_time_from_user(long* date_time){
         while (getchar() != '\n') {};
     }
     buff[0] = 't';
-    while ((str_to_int(buff, &date_time[4]) == 1) || ((date_time[1] < 0) || (date_time[4] > 60))) {
+    while ((str_to_int(buff, &date_time[4]) == 1) || ((date_time[4] < 0) || (date_time[4] >= 60))) {
         printf("Enter minute\n");
         scanf("%20s", buff);
         while (getchar() != '\n') {};
     }
     buff[0] = 't';
-    while ((str_to_int(buff, &date_time[5]) == 1) || ((date_time[1] < 0) || (date_time[1] > 60))) {
+    while ((str_to_int(buff, &date_time[5]) == 1) || ((date_time[5] < 0) || (date_time[5] >= 60))) {
         printf("Enter second\n");
         scanf("%20s", buff);
         while (getchar() != '\n') {};
