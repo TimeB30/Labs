@@ -87,9 +87,6 @@ void add_value_to_trie(string* valuable_name, unsigned int value, trie* tr,int* 
 }
 
 trie_node* get_value_from_trie_inside(const char* variable_name,trie_node** first_array){
-    if ((variable_name[0] > 47) && (variable_name[0] < 58)){
-        return NULL;
-    }
     unsigned int i = 0;
     unsigned int name_index = 1;
     trie_node** tmp = first_array;
@@ -263,11 +260,7 @@ unsigned int  add(unsigned int num1, unsigned int num2,string* error_message){
     return num1 + num2;
 }
 unsigned int mult(unsigned int num1, unsigned int num2,string* error_message){
-    if ((num2 != 0) && (num1 < (uint_max / num2))){
-        return num1 * num2;
-    }
-    add_to_string_string(error_message,"Error: too big number in result\n");
-    return num1;
+    return num1 * num2;
 }
 unsigned int sub(unsigned int num1, unsigned int num2,string* error_message){
     if (num2 > num1){
@@ -747,10 +740,14 @@ void apply_settings(operations* ops,compile_options* comp_ops,FILE* file, int* s
 
 }
 enum run_errors check_variable(string* variable_name){
-    if ((variable_name->string[0] > 47) && (variable_name->string[0] < 58)){
+    int i = 0;
+    if (variable_name->string[0] == '!'){
+        i = 1;
+    }
+    else if  ((variable_name->string[0] > 47) && (variable_name->string[0] < 58)){
         return name_error;
     }
-    for (int i = 1; i < variable_name->current_size; i++){
+    for (i; i < variable_name->current_size; i++){
         if ((!(isalnum(variable_name->string[i])) && (variable_name->string[i] != '_'))){
             return name_error;
         }
@@ -856,6 +853,7 @@ unsigned int* equation_recog(string* equation,operations* ops, compile_options* 
     trie_node* variable_info;
     unsigned int param1;
     unsigned int param2;
+    char check_letter;
     char open_bracket = '(';
     char close_bracket = ')';
     if (comp_ops->str[1]->string[1] == 'o'){
@@ -921,20 +919,37 @@ unsigned int* equation_recog(string* equation,operations* ops, compile_options* 
                         add_to_string(error_message,'\n');
                         return NULL;
                     }
-                    i_func(i);
-
                 }
-                return answer;
+                check_letter = ',' ;
+                if (is_binary == -1){
+                    check_letter = close_bracket;
+                }
+                if ((equation->string[*i] == check_letter) || (equation->string[*i] == close_bracket)  || (equation->string[*i] == '\0')) {
+                    i_func(i);
+                    return answer;
+                }
+                else{
+                    add_to_string_string(error_message,"Error: syntax or many arguments error\n");
+                    for (unsigned int t = 0; t <= *i; t++){
+                        add_to_string(error_message,' ');
+                    }
+                    add_to_string_string(error_message,"!\n'");
+                    add_to_string_string(error_message,equation->string);
+                    add_to_string_string(error_message,"' at line ");
+                    add_number_to_string(error_message,str_index);
+                    add_to_string(error_message,'\n');
+                    return NULL;
+                }
             }
 
         }
         else if (equation->string[*i] == ','){
-            if (*after_func) {
-                *after_func = 0;
-                clear_string(buff_str);
-                i_func(i);
-                continue;
-            }
+//            if (*after_func) {
+//                *after_func = 0;
+//                clear_string(buff_str);
+//                i_func(i);
+//                continue;
+//            }
             if (comp_ops->str[1]->string[0] == '('){ // if postfix
                 reverse_str(buff_str);
             }
@@ -995,12 +1010,12 @@ unsigned int* equation_recog(string* equation,operations* ops, compile_options* 
                 add_to_string(error_message, '\n');
                 return NULL;
             }
-            if (*after_func) {
-                *after_func = 0;
-                i_func(i);
-                clear_string(buff_str);
-                continue;
-            }
+//            if (*after_func) {
+//                *after_func = 0;
+//                i_func(i);
+//                clear_string(buff_str);
+//                continue;
+//            }
             else {
                 i_func(i);
                 if (buff_str->string[0] == '!'){
@@ -1400,7 +1415,7 @@ enum run_errors read_line(operations* ops, compile_options* comp_ops,trie* varia
                 }
                 return good_name;
             }
-            if (comp_ops->str[1]->string[2] == 'o'){
+            if (comp_ops->str[1]->string[2] == 'o'){ // if postfix we start from the end
                 if (buff[2]->current_size != 0){
                     k = buff[2]->current_size-1;
                 }
@@ -1422,24 +1437,8 @@ enum run_errors read_line(operations* ops, compile_options* comp_ops,trie* varia
                     error_message->current_size = 1;
                     return success;
                 }
-//                    add_to_string_string(error_message,"Error: wrong variable name'");
-//                    add_to_string_string(error_message,buff[0]->string);
-//                    add_to_string_string(error_message,"' at line ");
-//                    add_number_to_string(error_message, *str_index);
-//                    add_to_string(error_message, '\n');
-//                    return run_error;
-
-                if (equation_recog(buff[0],ops,comp_ops,variables_data,answer,base_assign,base_input,base_output,&k,&status,&after_func,0,error_message,*str_index,i_func,comparator,buff[1]) == NULL){
+                if (equation_recog(buff[0],ops,comp_ops,variables_data,answer,base_assign,base_input,base_output,&k,&status,&after_func,-1,error_message,*str_index,i_func,comparator,buff[1]) == NULL){
                     return run_error;
-                }
-                if (k < buff[0]->current_size - 1){
-                    add_to_string_string(error_message,"Error: undefined reference '");
-                    add_to_string(error_message,buff[0]->string[k]);
-                    add_to_string_string(error_message,"....' at line ");
-                    add_number_to_string(error_message,*str_index);
-                    add_to_string(error_message,'\n');
-                    return run_error;
-                    //TODO если передать переменную как параметр через пробел то он это съест потому что пробелы убираются бляяяяя done
                 }
                 return good_name;
             }
@@ -1463,18 +1462,17 @@ enum run_errors read_line(operations* ops, compile_options* comp_ops,trie* varia
             }
             else {
 //                add_to_string(str_to_write, letter);
-                if (equation_recog(buff[2],ops,comp_ops,variables_data,answer,base_assign,base_input,base_output,&k,&status,&after_func,0,error_message,*str_index,i_func,comparator,buff[1]) == NULL){
+                if (equation_recog(buff[2],ops,comp_ops,variables_data,answer,base_assign,base_input,base_output,&k,&status,&after_func,-1,error_message,*str_index,i_func,comparator,buff[1]) == NULL){
                     return run_error;
                 }
-                if (k < buff[2]->current_size - 1){
-                    add_to_string_string(error_message,"Error: undefined reference '");
-                    add_to_string(error_message,buff[2]->string[k]);
-                    add_to_string_string(error_message,"....' at line ");
-                    add_number_to_string(error_message,*str_index);
-                    add_to_string(error_message,'\n');
-                    return run_error;
-                    //TODO если передать переменную как параметр через пробел то он это съест потому что пробелы убираются бляяяяя done
-                }
+//                if (k < buff[2]->current_size){
+//                    add_to_string_string(error_message,"Error: too many arguments ");
+//                    add_to_string_string(error_message,"at line ");
+//                    add_number_to_string(error_message,*str_index);
+//                    add_to_string(error_message,'\n');
+//                    return run_error;
+//                    //TODO если передать переменную как параметр через пробел то он это съест потому что пробелы убираются бляяяяя done
+//                }
                 return success;
             }
         }
@@ -1534,7 +1532,7 @@ void run(operations* ops,compile_options* comp_ops,FILE* run_file, int debug_sta
                             variable_info = get_value_from_trie(buff[0],variables_data);
                             if (variable_info != NULL){
                                 if (variable_info->is_used){
-                                    add_to_string_string(error_message,"Variable '");
+                                    add_to_string_string(error_message,"Error: variable '");
                                     add_to_string_string(error_message,buff[0]->string);
                                     add_to_string_string(error_message,"' already exist at line ");
                                     add_number_to_string(error_message,str_index);
@@ -1542,9 +1540,7 @@ void run(operations* ops,compile_options* comp_ops,FILE* run_file, int debug_sta
                                     return;
                                 }
                             }
-                            move_left(buff[0]);
                         }
-                        clear_string(error_message);
                         if (check_reserved(buff[0],ops,error_message)) {
                             add_value_to_trie(buff[0], answer, variables_data, &status);
                         }
@@ -1554,6 +1550,7 @@ void run(operations* ops,compile_options* comp_ops,FILE* run_file, int debug_sta
                         }
                     }
                     else{
+                        clear_string(error_message);
                         add_to_string_string(error_message, "Error: wrong variable name '");
                         add_to_string_string(error_message,buff[0]->string);
                         add_to_string_string(error_message, "' at line ");

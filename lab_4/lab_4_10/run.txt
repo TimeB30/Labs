@@ -1,7 +1,5 @@
 #!BREAKPOINT;
 #output(!BREAKPOINT);
 
-#a = output(add(output(1),mult(2,3)));
-#output(add(5,6));
-
-add(add(5,6),add(1,2),add(3,4));
+output(25);
+output(add(mult(1,0),output(25)));
