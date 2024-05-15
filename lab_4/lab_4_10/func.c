@@ -369,7 +369,7 @@ operations* create_operations(int* status){
         *status = -2;
         return NULL;
     }
-    ops->operations_count =  13;
+    ops->operations_count =  12;
     ops->ops = (operation*)malloc(sizeof(operation)*ops->operations_count);
     if (ops->ops == NULL){
         *status = -2;
@@ -444,10 +444,6 @@ operations* create_operations(int* status){
     ops->ops[11].is_binary = 0;
     add_to_string_string(ops->ops[11].realname,"output");
     add_to_string_string(ops->ops[11].name,"output");
-//    ops->ops[12].func = initialize;
-//    ops->ops[12].priority = 0;
-//    add_to_string_string(ops->ops[9].realname,"=");
-//    add_to_string_string(ops->ops[9].name,"=");
     return ops;
 }
 compile_options* create_compile_options(int* status){
@@ -755,7 +751,7 @@ enum run_errors check_variable(string* variable_name){
         return name_error;
     }
     for (int i = 1; i < variable_name->current_size; i++){
-        if ((!(isalnum(variable_name->string[i])) || (variable_name->string[i] == '_'))){
+        if ((!(isalnum(variable_name->string[i])) && (variable_name->string[i] != '_'))){
             return name_error;
         }
 
@@ -862,7 +858,7 @@ unsigned int* equation_recog(string* equation,operations* ops, compile_options* 
     unsigned int param2;
     char open_bracket = '(';
     char close_bracket = ')';
-    if (comp_ops->str[0]->string[0] == 'r'){
+    if (comp_ops->str[1]->string[1] == 'o'){
         open_bracket = ')';
         close_bracket = '(';
     }
@@ -881,15 +877,15 @@ unsigned int* equation_recog(string* equation,operations* ops, compile_options* 
                 return NULL;
             }
             else{
-                *after_func = 1;
                 i_func(i);
                 if (op->is_binary){
+                    *after_func = 1;
                     check = equation_recog(equation,ops,comp_ops,variables_data,answer,base_assign,base_input,base_output,i,status,&after_func2,1,error_message,str_index,i_func,comparator,buff_str);
                     if (check == NULL){
                         return NULL;
                     }
                     param1 = *check;
-                    check = equation_recog(equation,ops,comp_ops,variables_data,answer,base_assign,base_input,base_output,i,status,&after_func2,1,error_message,str_index,i_func,comparator,buff_str);
+                    check = equation_recog(equation,ops,comp_ops,variables_data,answer,base_assign,base_input,base_output,i,status,&after_func2,0,error_message,str_index,i_func,comparator,buff_str);
                     if (check == NULL){
                         return NULL;
                     }
@@ -925,13 +921,21 @@ unsigned int* equation_recog(string* equation,operations* ops, compile_options* 
                         add_to_string(error_message,'\n');
                         return NULL;
                     }
+                    i_func(i);
+
                 }
                 return answer;
             }
 
         }
         else if (equation->string[*i] == ','){
-            if (comp_ops->str[0]->string[0] == 'r'){
+            if (*after_func) {
+                *after_func = 0;
+                clear_string(buff_str);
+                i_func(i);
+                continue;
+            }
+            if (comp_ops->str[1]->string[0] == '('){ // if postfix
                 reverse_str(buff_str);
             }
             //TODO наверное если после завершения программы i < current_size значит было передано больше параметров чем 1 или 2  проверить! на первый тест так и работает без подсчета запятых но почему ?
@@ -941,12 +945,6 @@ unsigned int* equation_recog(string* equation,operations* ops, compile_options* 
                     add_number_to_string(error_message, str_index);
                     add_to_string(error_message, '\n');
                     return NULL;
-                }
-                if (*after_func) {
-                    *after_func = 0;
-                    clear_string(buff_str);
-                    i_func(i);
-                    continue;
                 }
                 else {
                     i_func(i);
@@ -979,14 +977,16 @@ unsigned int* equation_recog(string* equation,operations* ops, compile_options* 
                 }
             }
             else {
-                add_to_string_string(error_message, "Error: too many parameters given  at line ");
-                add_number_to_string(error_message, str_index);
-                add_to_string(error_message, '\n');
+                add_to_string_string(error_message,"Error: too many arguments given '");
+                add_to_string_string(error_message,equation->string);
+                add_to_string_string(error_message,"' at line ");
+                add_number_to_string(error_message,str_index);
+                add_to_string(error_message,'\n');
                 return NULL;
             }
         }
         else if (equation->string[*i] == close_bracket){
-            if (comp_ops->str[0]->string[0] == 'r'){
+            if (comp_ops->str[1]->string[0] == '('){ // if postfix
                 reverse_str(buff_str);
             }
             if (buff_str->current_size == 0){
@@ -996,13 +996,13 @@ unsigned int* equation_recog(string* equation,operations* ops, compile_options* 
                 return NULL;
             }
             if (*after_func) {
+                *after_func = 0;
                 i_func(i);
                 clear_string(buff_str);
                 continue;
             }
             else {
                 i_func(i);
-                *answer = strtouint(buff_str->string,base_assign,status);
                 if (buff_str->string[0] == '!'){
                     variable_info = get_value_from_trie(buff_str,variables_data);
                     if ((variable_info != NULL) && (variable_info->is_used)){
@@ -1334,7 +1334,7 @@ enum run_errors read_line(operations* ops, compile_options* comp_ops,trie* varia
 
         }
         if (letter == '='){
-            if (buff[2]->current_size > 0) {
+            if ((buff[2]->current_size > 0) || (str_to_write == buff[2])) {
                 add_to_string_string(error_message, "Error: second '=' met at line ");
                 add_number_to_string(error_message, *str_index);
                 add_to_string(error_message, '\n');
@@ -1432,10 +1432,10 @@ enum run_errors read_line(operations* ops, compile_options* comp_ops,trie* varia
                 if (equation_recog(buff[0],ops,comp_ops,variables_data,answer,base_assign,base_input,base_output,&k,&status,&after_func,0,error_message,*str_index,i_func,comparator,buff[1]) == NULL){
                     return run_error;
                 }
-                if (k < buff[0]->current_size){
-                    add_to_string_string(error_message,"Error: too many arguments given '");
-                    add_to_string_string(error_message,buff[0]->string);
-                    add_to_string_string(error_message,"' at line ");
+                if (k < buff[0]->current_size - 1){
+                    add_to_string_string(error_message,"Error: undefined reference '");
+                    add_to_string(error_message,buff[0]->string[k]);
+                    add_to_string_string(error_message,"....' at line ");
                     add_number_to_string(error_message,*str_index);
                     add_to_string(error_message,'\n');
                     return run_error;
@@ -1466,10 +1466,10 @@ enum run_errors read_line(operations* ops, compile_options* comp_ops,trie* varia
                 if (equation_recog(buff[2],ops,comp_ops,variables_data,answer,base_assign,base_input,base_output,&k,&status,&after_func,0,error_message,*str_index,i_func,comparator,buff[1]) == NULL){
                     return run_error;
                 }
-                if (k < buff[2]->current_size){
-                    add_to_string_string(error_message,"Error: too many arguments given '");
-                    add_to_string_string(error_message,buff[2]->string);
-                    add_to_string_string(error_message,"' at line ");
+                if (k < buff[2]->current_size - 1){
+                    add_to_string_string(error_message,"Error: undefined reference '");
+                    add_to_string(error_message,buff[2]->string[k]);
+                    add_to_string_string(error_message,"....' at line ");
                     add_number_to_string(error_message,*str_index);
                     add_to_string(error_message,'\n');
                     return run_error;
@@ -1495,6 +1495,22 @@ enum run_errors read_line(operations* ops, compile_options* comp_ops,trie* varia
     add_to_string(error_message, '\n');
     return run_error;
 }
+int check_reserved(string* name,operations* ops,string* error_message){
+    clear_string(error_message);
+    add_to_string_string(error_message,"Error: reserved name '");
+    add_to_string_string(error_message,name->string);
+    add_to_string_string(error_message,"' on line ");
+    for (int i = 0; i < ops->operations_count; i++){
+        if (!strcmp(ops->ops[i].name->string,name->string)){
+            return 0;
+        }
+    }
+    if (!strcmp("BREAKPOINT",name->string)){
+        return 0;
+    }
+    clear_string(error_message);
+    return 1;
+}
 void run(operations* ops,compile_options* comp_ops,FILE* run_file, int debug_status,string* error_message,trie* variables_data,unsigned int base_assign, unsigned int base_input,unsigned int base_output){
     unsigned long int str_index = 1;
     clear_string(error_message);
@@ -1514,10 +1530,10 @@ void run(operations* ops,compile_options* comp_ops,FILE* run_file, int debug_sta
                     printf("success\n");
                     if (check_variable(buff[0]) == good_name) {
                         if (error_message->current_size == 1){
+                            clear_string(error_message);
                             variable_info = get_value_from_trie(buff[0],variables_data);
                             if (variable_info != NULL){
                                 if (variable_info->is_used){
-                                    clear_string(error_message);
                                     add_to_string_string(error_message,"Variable '");
                                     add_to_string_string(error_message,buff[0]->string);
                                     add_to_string_string(error_message,"' already exist at line ");
@@ -1528,13 +1544,14 @@ void run(operations* ops,compile_options* comp_ops,FILE* run_file, int debug_sta
                             }
                             move_left(buff[0]);
                         }
-                        if (!strcmp(buff[0]->string, "BREAKPOINT")) {
-                            add_to_string_string(error_message, "Error: BREAKPOINT is reserved name at line ");
-                            add_number_to_string(error_message, str_index);
-                            add_to_string(error_message, '\n');
-                            return;
+                        clear_string(error_message);
+                        if (check_reserved(buff[0],ops,error_message)) {
+                            add_value_to_trie(buff[0], answer, variables_data, &status);
                         }
-                        add_value_to_trie(buff[0], answer, variables_data, &status);
+                        else{
+                            add_number_to_string(error_message,str_index);
+                            return ;
+                        }
                     }
                     else{
                         add_to_string_string(error_message, "Error: wrong variable name '");
