@@ -1,6 +1,4 @@
-a = 2;
-ffd = 5;
-bb = 55;
-asfasdfsaf = 44;
-!a output;
+da = add(2,5);
+print(!da);
 BREAKPOINT;
+output(!b);

@@ -369,7 +369,7 @@ operations* create_operations(int* status){
         *status = -2;
         return NULL;
     }
-    ops->operations_count =  12;
+    ops->operations_count =  13;
     ops->ops = (operation*)malloc(sizeof(operation)*ops->operations_count);
     if (ops->ops == NULL){
         *status = -2;
@@ -444,6 +444,11 @@ operations* create_operations(int* status){
     ops->ops[11].is_binary = 0;
     add_to_string_string(ops->ops[11].realname,"output");
     add_to_string_string(ops->ops[11].name,"output");
+    ops->ops[12].func = NULL;
+    ops->ops[12].priority = 0;
+    ops->ops[12].is_binary = 0;
+    add_to_string_string(ops->ops[12].realname,"=");
+    add_to_string_string(ops->ops[12].name,"=");
     return ops;
 }
 compile_options* create_compile_options(int* status){
@@ -579,7 +584,7 @@ enum options options_recog(string** str,operations* ops){
         }
     }
     else{
-        for (int i = 0; i < 13; i++){
+        for (int i = 0; i < 12; i++){
             if (!strcmp(str[1]->string,ops->ops[i].name->string)){
                 return in_use;
             }
@@ -673,54 +678,54 @@ void apply_settings(operations* ops,compile_options* comp_ops,FILE* file, int* s
                 add_to_string_string(comp_ops->str[1],"op()");
                 break;
             case change_add:
-                clear_string(ops->ops->name);
+                clear_string(ops->ops[0].name);
                 add_to_string_string(ops->ops[0].name,buff[1]->string);
                 break;
             case change_mult:
-                clear_string(ops->ops->name);
+                clear_string(ops->ops[1].name);
                 add_to_string_string(ops->ops[1].name,buff[1]->string);
                 break;
             case change_sub:
-                clear_string(ops->ops->name);
+                clear_string(ops->ops[2].name);
                 add_to_string_string(ops->ops[2].name,buff[1]->string);
                 break;
             case change_pow:
-                clear_string(ops->ops->name);
+                clear_string(ops->ops[3].name);
                 add_to_string_string(ops->ops[3].name,buff[1]->string);
                 break;
             case change_div:
-                clear_string(ops->ops->name);
+                clear_string(ops->ops[4].name);
                 add_to_string_string(ops->ops[4].name,buff[1]->string);
                 break;
             case change_rem:
-                clear_string(ops->ops->name);
+                clear_string(ops->ops[5].name);
                 add_to_string_string(ops->ops[5].name,buff[1]->string);
                 break;
             case change_xor:
-                clear_string(ops->ops->name);
+                clear_string(ops->ops[6].name);
                 add_to_string_string(ops->ops[6].name,buff[1]->string);
                 break;
             case change_and:
-                clear_string(ops->ops->name);
+                clear_string(ops->ops[7].name);
                 add_to_string_string(ops->ops[7].name,buff[1]->string);
                 break;
             case change_or:
-                clear_string(ops->ops->name);
+                clear_string(ops->ops[8].name);
                 add_to_string_string(ops->ops[8].name,buff[1]->string);
                 break;
-            case change_init:
-                clear_string(ops->ops->name);
-                add_to_string_string(ops->ops[9].name,buff[1]->string);
-                break;
             case change_inverse:
-                clear_string(ops->ops->name);
-                add_to_string_string(ops->ops[10].name,buff[1]->string);
+                clear_string(ops->ops[9].name);
+                add_to_string_string(ops->ops[9].name,buff[1]->string);
             case change_input:
-                clear_string(ops->ops->name);
-                add_to_string_string(ops->ops[11].name,buff[1]->string);
+                clear_string(ops->ops[10].name);
+                add_to_string_string(ops->ops[10].name,buff[1]->string);
                 break;
             case change_output:
-                clear_string(ops->ops->name);
+                clear_string(ops->ops[11].name);
+                add_to_string_string(ops->ops[11].name,buff[1]->string);
+                break;
+            case change_init:
+                clear_string(ops->ops[12].name);
                 add_to_string_string(ops->ops[12].name,buff[1]->string);
                 break;
             case error:
@@ -764,6 +769,7 @@ enum run_errors check_variable(string* variable_name){
 }
 operation * get_op_info(string* func_name,operations* ops){
     for (int i = 0; i < 12; i++){
+        printf("%s\n", ops->ops[i].name->string);
         if (!strcmp(func_name->string,ops->ops[i].name->string)){
             return &(ops->ops[i]);
         }
@@ -1292,7 +1298,7 @@ void get_right_variable_name(string* buff){
     add_to_string(buff,'!');
     char letter;
     int count = 0;
-    while ((letter = getchar()) != '\n') {
+    while (((letter = getchar()) != '\n') || (buff->current_size == 1)){
         add_to_string(buff,letter);
         if (count == 0) {
             if ((letter > 47) && (letter < 58)) {
@@ -1340,18 +1346,20 @@ void print_all_variables(trie* variable_data){
     print_all_variables_inside(variable_data->root,buff);
     delete_string(buff);
 }
-void breakpoint(trie* variable_data){
+int breakpoint(trie* variable_data){
     printf("break;\n");
     char letter = 'f';
     int status = 0 ;
     int count = 0;
-    unsigned int buff_num;
+    unsigned long int buff_num;
+    int prev_num;
+    unsigned int current_num;
     trie_node* variable_info = NULL;
     string* buff = create_string(&status);
     if (status < 0){
-        return memory_error();
+        memory_error();
     }
-    while((letter < 49) || (letter > 55)){
+    while((letter < 49) || (letter > 55)) {
         printf("\nEnter option number: \n"
                "1) output with memory damp\n"
                "2) out all variables\n"
@@ -1362,69 +1370,199 @@ void breakpoint(trie* variable_data){
                "7) stop the program\n");
         letter = getchar();
         while (getchar() != '\n') {};
-    }
-    add_to_string(buff,'!');
-    if (letter == 49){
-        printf("Enter variable name\n");
-        while(1) {
-            get_right_variable_name(buff);
-            variable_info = get_value_from_trie(buff, variable_data);
-            if ((variable_info == NULL) || (variable_info->is_used == 0)) {
-                printf("Variable %s not found, try again\n",buff->string);
-                clear_string(buff);
-                add_to_string(buff,'!');
-            }
-            else{
-                printf("Variable value: ");
-                output(&variable_info->value,16,NULL);
-                buff_num = variable_info->value;
-                for(int i = 1; i < 33; i++){
-                    if ((buff_num & 128) > 0) {
-                        printf("1");
-                    }
-                    else{
-                        printf("0");
-                    }
-                    buff_num = buff_num << 1;
-                    if (i % 8 == 0){
-                        printf(" ");
+
+        add_to_string(buff, '!');
+        if (letter == 49) {
+            printf("Enter variable name\n");
+            while (1) {
+                get_right_variable_name(buff);
+                variable_info = get_value_from_trie(buff, variable_data);
+                if ((variable_info == NULL) || (variable_info->is_used == 0)) {
+                    printf("Variable %s not found, try again\n", buff->string);
+                    clear_string(buff);
+                    add_to_string(buff, '!');
+                } else {
+                    printf("Variable value: ");
+                    output(&variable_info->value, 16, NULL);
+                    buff_num = variable_info->value;
+                    for (int i = 1; i < 33; i++) {
+                        if ((buff_num & 128) > 0) {
+                            printf("1");
+                        } else {
+                            printf("0");
+                        }
+                        buff_num = buff_num << 1;
+                        if (i % 8 == 0) {
+                            printf(" ");
+                        }
                     }
                 }
+                break;
             }
-            break;
         }
-    }
-    else if (letter == 50){
-        print_all_variables(variable_data);
-    }
-    else if (letter == 51){
-        while (1){
-            printf("Enter variable name\n");
-            get_right_variable_name(buff);
-            variable_info = get_value_from_trie(buff,variable_data);
-            if ((variable_info == NULL) || (variable_info->is_used == 0)) {
-                printf("Variable %s not found, try again\n", buff->string);
+        else if (letter == 50) {
+            print_all_variables(variable_data);
+        }
+        else if (letter == 51) {
+            while (1) {
+                printf("Enter variable name\n");
+                get_right_variable_name(buff);
+                variable_info = get_value_from_trie(buff, variable_data);
+                if ((variable_info == NULL) || (variable_info->is_used == 0)) {
+                    printf("Variable %s not found, try again\n", buff->string);
+                    clear_string(buff);
+                    add_to_string(buff, '!');
+                    continue;
+                }
                 clear_string(buff);
-                add_to_string(buff, '!');
-                continue;
-            }
-            clear_string(buff);
-            printf("Enter number with 16 base\n");
-            while (!input(&buff_num,16,buff)){
-                printf("%s",buff->string);
                 printf("Enter number with 16 base\n");
-                clear_string(buff);
+                while (!input(&buff_num, 16, buff)) {
+                    printf("%s", buff->string);
+                    printf("Enter number with 16 base\n");
+                    clear_string(buff);
+                }
+                variable_info->value = buff_num;
+                break;
             }
-            variable_info->value = buff_num;
-            break;
+        }
+        else if (letter == 52) {
+            letter = 'a';
+            variable_info = NULL;
+            while (1) {
+                printf("Enter variable name\n");
+                get_right_variable_name(buff);
+                variable_info = get_value_from_trie(buff, variable_data);
+                if (variable_info != NULL) {
+                    if (variable_info->is_used) {
+                        printf("Variable is used\n");
+                        continue;
+                    }
+                }
+                break;
+            }
+            while ((letter < 49) || (letter > 50)) {
+                printf("Choose in which type you want to enter the number\n"
+                       "1) Roman numerals\n"
+                       "2) Zeckendorff number\n");
+                letter = getchar();
+                if (getchar() != '\n') {
+                    printf("You enter too big number\n");
+                    while (getchar() != '\n') {}
+                    letter = 'a';
+                }
+            }
+            count = 0;
+            prev_num = 0;
+            buff_num = 0;
+            if (letter == 49) {
+                printf("Enter roman number\n");
+                while ((letter = getchar()) != '\n') {
+                    if (letter == 'I') {
+                        current_num = 1;
+                    } else if (letter == 'V') {
+                        current_num = 5;
+                    } else if (letter == 'X') {
+                        current_num = 10;
+                    } else if (letter == 'L') {
+                        current_num = 50;
+                    } else if (letter == 'C') {
+                        current_num = 100;
+                    } else if (letter == 'D') {
+                        current_num = 500;
+                    } else if (letter == 'M') {
+                        current_num = 1000;
+                    }
+                    else {
+                        printf("You enter wrong roman number, try again\n");
+                        while (getchar() != '\n') {};
+                        buff_num = 0;
+                        prev_num = 0;
+                        continue;
+                    }
+                    if (prev_num == 0) {
+                        prev_num = current_num;
+                        continue;
+                    }
+                    if (prev_num < current_num) {
+                        buff_num += current_num - prev_num;
+                        prev_num = 0;
+                    }
+                    else {
+                        buff_num += prev_num;
+                        prev_num = current_num;
+                    }
+                    if (buff_num > 4294967295) {
+                        printf("Too big number, try again\n");
+                        prev_num = -1;
+                        buff_num = 0;
+                        continue;
+                    }
+                }
+                buff_num += prev_num;
+            }
+            else {
+                buff_num = 0;
+                current_num = 0;
+                printf("Enter Zeckendorff number\n");
+                while ((letter = getchar()) != '\n') {
+                    if (letter == '1'){
+                        if (buff_num == 0){
+                            current_num += 1;
+                            buff_num = 1;
+                            continue;
+                        }
+                        else {
+                            current_num += buff_num;
+                            if (current_num > 4294967295){
+                                printf("You entered too big number\n");
+                                while (getchar() != '\n') {}
+                                buff_num = 0;
+                                current_num = 0;
+                                continue;
+                            }
+                        }
+                    }
+                    else if (letter != '0'){
+                        printf("You entered wrong number\n");
+                        while (getchar() != '\n') {}
+                        buff_num = 0;
+                        current_num = 0;
+                        continue;
+                    }
+                    if (buff_num == 0){
+                        buff_num = 1;
+                        continue;
+                    }
+                    buff_num += buff_num;
+                }
+                buff_num = current_num;
+            }
+            printf("%lu\n", buff_num);
+            move_left(buff);
+            add_value_to_trie(buff, buff_num, variable_data, &status);
+        }
+        else if (letter == 53) {
+            while (1) {
+                printf("Enter variable name\n");
+                get_right_variable_name(buff);
+                variable_info = get_value_from_trie(buff, variable_data);
+                if (variable_info != NULL) {
+                    if (variable_info->is_used) {
+                        variable_info->is_used = 0;
+                        break;
+                    }
+                }
+                printf("Variable not found\n");
+            }
+            printf("Done\n");
+            letter = 'a';
+        }
+        else if (letter == 54) {
+            return 0;
+        } else {
+            return 1;
         }
     }
-    else if (52){
-        printf("Enter variable name\n");
-        get_right_variable_name(buff);
-        
-    }
-
 }
 enum run_errors read_line(operations* ops, compile_options* comp_ops,trie* variables_data,unsigned int* answer,string** buff,FILE* file,unsigned long int* str_index,string* error_message,unsigned int base_assign, unsigned int base_input, unsigned int base_output) {
     clear_string(error_message);
@@ -1487,6 +1625,9 @@ enum run_errors read_line(operations* ops, compile_options* comp_ops,trie* varia
                 continue;
             }
             if(from_letter){
+//                if (!strcmp(ops->ops[12].name->string,str_to_write->string)){
+//                    separater_met = 1;
+//                }
                 separater_met = 0;
             }
             from_letter = 0;
@@ -1509,6 +1650,7 @@ enum run_errors read_line(operations* ops, compile_options* comp_ops,trie* varia
             continue;
 
         }
+//        if (!strcmp(ops->ops[12].name->string,str_to_write->string)){
         if (letter == '='){
             if ((buff[2]->current_size > 0) || (str_to_write == buff[2])) {
                 add_to_string_string(error_message, "Error: second '=' met at line ");
@@ -1586,8 +1728,10 @@ enum run_errors read_line(operations* ops, compile_options* comp_ops,trie* varia
                     return success;
                 }
                 if (!strcmp(buff[0]->string,"BREAKPOINT")){
-                    breakpoint(variables_data);
-                    return end;
+                    if (breakpoint(variables_data)){
+                        return end;
+                    }
+                    return good_name;
                 }
                 str_to_write = buff[0];
                 if ((count < 2) && (str_to_write->string[0] == '!')){
@@ -1607,12 +1751,12 @@ enum run_errors read_line(operations* ops, compile_options* comp_ops,trie* varia
                     error_message->current_size = 1;
                     return success;
                 }
-//                if (comp_ops->str[1]->string[1] == 'o') {
-//                    if (infix_equation_recog(str_to_write,ops,variables_data,answer,base_assign,base_input,base_output,&k,&status,error_message,str_index,buff[1],buff[3],-1) == NULL){
-//                        return run_error;
-//                    }
-//                    return good_name;
-//                }
+                if (!strcmp(buff[0]->string,"BREAKPOINT")){
+                    if (breakpoint(variables_data)){
+                        return end;
+                    }
+                    return good_name;
+                }
                 if (equation_recog(buff[0],ops,comp_ops,variables_data,answer,base_assign,base_input,base_output,&k,&status,&after_func,-1,error_message,*str_index,i_func,comparator,buff[1]) == NULL){
                     return run_error;
                 }

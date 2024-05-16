@@ -1,6 +1,4 @@
-#right=
-(op)
-#()op
+output print
 
 
 
