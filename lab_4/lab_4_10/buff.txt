@@ -1,0 +1,30 @@
+#!BREAKPOINT;
+#output(!BREAKPOINT);
+
+#output(25);
+#output(add(54,output(25)));
+
+
+#add(add(2,5),add(2,add(2,5),));
+
+
+
+#add(2,5);
+
+#add(add(2,5),add(2,5))a;
+
+#(((2,5)add,(2,5)add)add)output;
+
+
+(5 not) output;
+((24 output) add 2) output;
+(((2 add 2) add 2) output) output;
+
+
+
+
+            2
+add
+2
+output;
+#25 output output;

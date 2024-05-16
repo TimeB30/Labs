@@ -95,7 +95,7 @@ trie_node* get_value_from_trie_inside(const char* variable_name,trie_node** firs
         if (tmp == NULL){
             return NULL;
         }
-        if (i == 61){
+        if (i == 62){
             return NULL;
         }
         if (tmp[i]->letter == variable_name[name_index]){
@@ -203,11 +203,18 @@ int input(unsigned int* num,unsigned int base_input,string* error_message){
         return 0;
     }
     char buff_str[33];
-    scanf("%32s",buff_str);
-    if (getchar() != '\n'){
-        add_to_string_string(error_message,"Too big number\n");
-        return 0;
+    int i = 0;
+    char letter;
+    while((letter = getchar()) != '\n'){
+        if (i == 32){
+            while (getchar() != '\n'){}
+            add_to_string_string(error_message,"Too big number\n");
+            return 0;
+        }
+        buff_str[i] = letter;
+        i++;
     }
+    buff_str[i] = '\0';
     unsigned int answer = strtouint(buff_str,base_input,&status);
     if (status < 0){
         add_to_string_string(error_message,"Not number\n");
@@ -856,7 +863,7 @@ unsigned int* equation_recog(string* equation,operations* ops, compile_options* 
     char check_letter;
     char open_bracket = '(';
     char close_bracket = ')';
-    if (comp_ops->str[1]->string[1] == 'o'){
+    if (comp_ops->str[1]->string[0] == '('){
         open_bracket = ')';
         close_bracket = '(';
     }
@@ -920,11 +927,16 @@ unsigned int* equation_recog(string* equation,operations* ops, compile_options* 
                         return NULL;
                     }
                 }
-                check_letter = ',' ;
-                if (is_binary == -1){
-                    check_letter = close_bracket;
+                if (equation->string[*i] == ','){
+                    if (!is_binary){
+                        add_to_string_string(error_message,"Bro! don't enter to much at line \n");
+                        add_number_to_string(error_message,str_index);
+                        return NULL;
+                    }
+                    i_func(i);
+                    return answer;
                 }
-                if ((equation->string[*i] == check_letter) || (equation->string[*i] == close_bracket)  || (equation->string[*i] == '\0')) {
+                if ((equation->string[*i] == close_bracket)  || (equation->string[*i] == '\0')) {
                     i_func(i);
                     return answer;
                 }
@@ -953,7 +965,6 @@ unsigned int* equation_recog(string* equation,operations* ops, compile_options* 
             if (comp_ops->str[1]->string[0] == '('){ // if postfix
                 reverse_str(buff_str);
             }
-            //TODO наверное если после завершения программы i < current_size значит было передано больше параметров чем 1 или 2  проверить! на первый тест так и работает без подсчета запятых но почему ?
             if (is_binary) {
                 if (buff_str->current_size == 0){
                     add_to_string_string(error_message, "Error: no parameter given at line ");
@@ -972,7 +983,6 @@ unsigned int* equation_recog(string* equation,operations* ops, compile_options* 
                         add_to_string_string(error_message,buff_str->string);
                         add_to_string_string(error_message, "' is not  variable at line ");
                         add_number_to_string(error_message, str_index);
-                        //TODO сделать  проверку переменной и добавить в поле значение была эта переменная обьявлена или нет чтоб не обратиться к необьявленной переменной или обьявить одну и ту же переменную дважды
                         add_to_string(error_message, '\n');
                         return NULL;
                     }
@@ -982,7 +992,6 @@ unsigned int* equation_recog(string* equation,operations* ops, compile_options* 
                         add_to_string_string(error_message,buff_str->string);
                         add_to_string_string(error_message, "' is not a number at line ");
                         add_number_to_string(error_message, str_index);
-                        //TODO сделать  проверку переменной и добавить в поле значение была эта переменная обьявлена или нет чтоб не обратиться к необьявленной переменной или обьявить одну и ту же переменную дважды
                         add_to_string(error_message, '\n');
                         return NULL;
                     }
@@ -1027,7 +1036,6 @@ unsigned int* equation_recog(string* equation,operations* ops, compile_options* 
                     add_to_string_string(error_message,buff_str->string);
                     add_to_string_string(error_message, "' is not  variable at line ");
                     add_number_to_string(error_message, str_index);
-                    //TODO сделать  проверку переменной и добавить в поле значение была эта переменная обьявлена или нет чтоб не обратиться к необьявленной переменной или обьявить одну и ту же переменную дважды
                     add_to_string(error_message, '\n');
                     return NULL;
                 }
@@ -1037,7 +1045,6 @@ unsigned int* equation_recog(string* equation,operations* ops, compile_options* 
                     add_to_string_string(error_message,buff_str->string);
                     add_to_string_string(error_message, "' is not a number at line ");
                     add_number_to_string(error_message, str_index);
-                    //TODO сделать  проверку переменной и добавить в поле значение была эта переменная обьявлена или нет чтоб не обратиться к необьявленной переменной или обьявить одну и ту же переменную дважды
                     add_to_string(error_message, '\n');
                     return NULL;
                 }
@@ -1065,7 +1072,6 @@ unsigned int* equation_recog(string* equation,operations* ops, compile_options* 
         add_to_string_string(error_message,buff_str->string);
         add_to_string_string(error_message, "' is not  variable at line");
         add_number_to_string(error_message, str_index);
-        //TODO сделать  проверку переменной и добавить в поле значение была эта переменная обьявлена или нет чтоб не обратиться к необьявленной переменной или обьявить одну и ту же переменную дважды
         add_to_string(error_message, '\n');
         return NULL;
     }
@@ -1075,7 +1081,6 @@ unsigned int* equation_recog(string* equation,operations* ops, compile_options* 
         add_to_string_string(error_message,buff_str->string);
         add_to_string_string(error_message, "' is not a number at line ");
         add_number_to_string(error_message, str_index);
-        //TODO сделать  проверку переменной и добавить в поле значение была эта переменная обьявлена или нет чтоб не обратиться к необьявленной переменной или обьявить одну и ту же переменную дважды
         add_to_string(error_message, '\n');
         return NULL;
     }
@@ -1116,6 +1121,7 @@ unsigned int*  infix_equation_recog(string* equation,operations* ops,trie* varia
     unsigned int* num2 = &num;
     char letter;
     int from_unary = 0;
+    unsigned int* check;
 //    unsigned int answer;
     int from_letter = 0;
     while (*i <= equation->current_size){
@@ -1124,7 +1130,7 @@ unsigned int*  infix_equation_recog(string* equation,operations* ops,trie* varia
             if (from_letter){
                 (*i)++;
                 from_letter = 0;
-                if (string_to_write == buff2){
+                if ((string_to_write == buff2) || (letter == ')')){
                     if (!from_unary) {
                         if (buff1->string[0] == '!') {
                             variable_info = get_value_from_trie(buff1, variables_data);
@@ -1149,6 +1155,10 @@ unsigned int*  infix_equation_recog(string* equation,operations* ops,trie* varia
                                 return NULL;
                             }
                         }
+                        if ((letter == ')') && (buff2->current_size == 0)){ // if in this situation (a op b) op 2
+                            *answer = num;
+                            return answer;
+                        }
                     }
                     else{
                         num2 = answer;
@@ -1166,9 +1176,13 @@ unsigned int*  infix_equation_recog(string* equation,operations* ops,trie* varia
                         from_unary = 0;
                         if (op->priority > min_priority){
                             num = *num2;
-                            *answer = ((unsigned int (*) (unsigned int, unsigned int, string*))op->func)(num,*infix_equation_recog(equation,ops,variables_data,answer,
-                                                                                                                                     base_assign,base_input,base_output,i,status,
-                                                                                                                                     error_message,str_index,buff1,buff2,op->priority),error_message);
+                            check = infix_equation_recog(equation,ops,variables_data,answer,
+                                                         base_assign,base_input,base_output,i,status,
+                                                         error_message,str_index,buff1,buff2,op->priority);
+                            if (check == NULL){
+                                return NULL;
+                            }
+                            *answer = ((unsigned int (*) (unsigned int, unsigned int, string*))op->func)(num,*check,error_message);
                             if (error_message->current_size > 0){
                                 add_to_string_string(error_message,"at line ");
                                 add_number_to_string(error_message,*str_index);
@@ -1216,24 +1230,15 @@ unsigned int*  infix_equation_recog(string* equation,operations* ops,trie* varia
             answer = infix_equation_recog(equation,ops,variables_data,answer,
                                           base_assign,base_input,base_output,i,status,
                                           error_message,str_index,buff1,buff2,-1);
-
+            if (answer == NULL){
+                return NULL;
+            }
             clear_string(buff2);
             continue;
         }
         else if (letter == ')'){
             (*i)++;
             return answer;
-//            (*i)++;
-//            if (buff1->string[0] == '!'){
-//                variable_info = get_value_from_trie(buff1,variables_data);
-//                if ((variable_info == NULL) || (variable_info->is_used == 0)){
-//                    return NULL;
-//                }
-//                return &variable_info->value;
-//            }
-//            else {
-//                return NULL;
-//            }
         }
         add_to_string(string_to_write,letter);
         from_letter = 1;
@@ -1243,7 +1248,7 @@ unsigned int*  infix_equation_recog(string* equation,operations* ops,trie* varia
         return answer;
     }
     if ((buff1->current_size == 0) && (buff2->current_size == 0)){
-        add_to_string_string(error_message,"Error: no equation at line ");
+        add_to_string_string(error_message,"Error: expected equation or number at line ");
         add_number_to_string(error_message,*str_index);
         add_to_string(error_message,'\n');
         return NULL;
@@ -1274,6 +1279,153 @@ unsigned int*  infix_equation_recog(string* equation,operations* ops,trie* varia
     }
     return answer;
 }
+void move_right(string* str){
+    for(unsigned int i = 0; i < str->current_size; i++){
+        str->string[i + 1] = str->string[i];
+    }
+    str->string[0] = '!';
+    str->current_size++;
+    str->current_size = '\0';
+}
+void get_right_variable_name(string* buff){
+    clear_string(buff);
+    add_to_string(buff,'!');
+    char letter;
+    int count = 0;
+    while ((letter = getchar()) != '\n') {
+        add_to_string(buff,letter);
+        if (count == 0) {
+            if ((letter > 47) && (letter < 58)) {
+                clear_string(buff);
+                add_to_string(buff,'!');
+                printf("You enter wrong variable name\n");
+                while (getchar() != '\n') {}
+                count = 0;
+                continue;
+            }
+        }
+        if ((!isalnum(letter)) && (letter != '_')) {
+            clear_string(buff);
+            add_to_string(buff,'!');
+            printf("You enter wrong variable name\n");
+            while (getchar() != '\n') {}
+            count = 0;
+            continue;
+        }
+        count++;
+    }
+}
+void print_all_variables_inside(trie_node** root,string* buff_str) {
+    for (int i = 0; i < 62; i++) {
+        if (root[i]->is_used){
+            printf("%s%c  %u\n",buff_str->string,root[i]->letter,root[i]->value);
+        }
+        if (root[i]->trie_nodes != NULL){
+            add_to_string(buff_str,root[i]->letter);
+            print_all_variables_inside(root[i]->trie_nodes,buff_str);
+        }
+    }
+    if (buff_str->current_size == 0){
+        return;
+    }
+    buff_str->current_size--;
+    buff_str->string[buff_str->current_size] = '\n';
+}
+void print_all_variables(trie* variable_data){
+    int status = 0;
+    string* buff = create_string(&status);
+    if (status < 0){
+        memory_error();
+    }
+    print_all_variables_inside(variable_data->root,buff);
+    delete_string(buff);
+}
+void breakpoint(trie* variable_data){
+    printf("break;\n");
+    char letter = 'f';
+    int status = 0 ;
+    int count = 0;
+    unsigned int buff_num;
+    trie_node* variable_info = NULL;
+    string* buff = create_string(&status);
+    if (status < 0){
+        return memory_error();
+    }
+    while((letter < 49) || (letter > 55)){
+        printf("\nEnter option number: \n"
+               "1) output with memory damp\n"
+               "2) out all variables\n"
+               "3) change variable\n"
+               "4) create new variable \n"
+               "5) cancel variable creation\n"
+               "6) keep working\n"
+               "7) stop the program\n");
+        letter = getchar();
+        while (getchar() != '\n') {};
+    }
+    add_to_string(buff,'!');
+    if (letter == 49){
+        printf("Enter variable name\n");
+        while(1) {
+            get_right_variable_name(buff);
+            variable_info = get_value_from_trie(buff, variable_data);
+            if ((variable_info == NULL) || (variable_info->is_used == 0)) {
+                printf("Variable %s not found, try again\n",buff->string);
+                clear_string(buff);
+                add_to_string(buff,'!');
+            }
+            else{
+                printf("Variable value: ");
+                output(&variable_info->value,16,NULL);
+                buff_num = variable_info->value;
+                for(int i = 1; i < 33; i++){
+                    if ((buff_num & 128) > 0) {
+                        printf("1");
+                    }
+                    else{
+                        printf("0");
+                    }
+                    buff_num = buff_num << 1;
+                    if (i % 8 == 0){
+                        printf(" ");
+                    }
+                }
+            }
+            break;
+        }
+    }
+    else if (letter == 50){
+        print_all_variables(variable_data);
+    }
+    else if (letter == 51){
+        while (1){
+            printf("Enter variable name\n");
+            get_right_variable_name(buff);
+            variable_info = get_value_from_trie(buff,variable_data);
+            if ((variable_info == NULL) || (variable_info->is_used == 0)) {
+                printf("Variable %s not found, try again\n", buff->string);
+                clear_string(buff);
+                add_to_string(buff, '!');
+                continue;
+            }
+            clear_string(buff);
+            printf("Enter number with 16 base\n");
+            while (!input(&buff_num,16,buff)){
+                printf("%s",buff->string);
+                printf("Enter number with 16 base\n");
+                clear_string(buff);
+            }
+            variable_info->value = buff_num;
+            break;
+        }
+    }
+    else if (52){
+        printf("Enter variable name\n");
+        get_right_variable_name(buff);
+        
+    }
+
+}
 enum run_errors read_line(operations* ops, compile_options* comp_ops,trie* variables_data,unsigned int* answer,string** buff,FILE* file,unsigned long int* str_index,string* error_message,unsigned int base_assign, unsigned int base_input, unsigned int base_output) {
     clear_string(error_message);
     if (file == NULL) {
@@ -1291,6 +1443,7 @@ enum run_errors read_line(operations* ops, compile_options* comp_ops,trie* varia
     int is_comment = 0;
     int is_line_comment = 0;
     int func_opened = 0;
+    int count = 0;
     int separater_met = 1;
     unsigned long int from_letter = 0;
     int i = 0;
@@ -1341,6 +1494,14 @@ enum run_errors read_line(operations* ops, compile_options* comp_ops,trie* varia
         }
         if (letter == '\n'){
             (*str_index)++;
+            if (comp_ops->str[1]->string[1] == 'o') {
+                if (from_letter) {
+                    add_to_string(str_to_write, ' ');
+                }
+                from_letter = 0;
+                separater_met = 1;
+                continue;
+            }
             if(from_letter){
                 separater_met = 0;
             }
@@ -1397,24 +1558,6 @@ enum run_errors read_line(operations* ops, compile_options* comp_ops,trie* varia
                 add_to_string(error_message, '\n');
                 return run_error;
             }
-            if (comp_ops->str[1]->string[1] == 'o') { // for infix
-                if (buff[2]->current_size != 0){
-                    buff[0]->current_size--;
-                    buff[0]->string[buff[0]->current_size] = '\0';
-                    str_to_write = buff[2];
-                    if (infix_equation_recog(str_to_write,ops,variables_data,answer,base_assign,base_input,base_output,&k,&status,error_message,str_index,buff[1],buff[3],-1) == NULL){
-                        add_to_string_string(error_message,"infix error\n");
-                        return run_error;
-                    }
-                    return success;
-                }
-                str_to_write = buff[0];
-                if (infix_equation_recog(str_to_write,ops,variables_data,answer,base_assign,base_input,base_output,&k,&status,error_message,str_index,buff[1],buff[3],-1) == NULL){
-                    add_to_string_string(error_message,"infix error\n");
-                    return run_error;
-                }
-                return good_name;
-            }
             if (comp_ops->str[1]->string[2] == 'o'){ // if postfix we start from the end
                 if (buff[2]->current_size != 0){
                     k = buff[2]->current_size-1;
@@ -1431,12 +1574,45 @@ enum run_errors read_line(operations* ops, compile_options* comp_ops,trie* varia
                 add_to_string(error_message, '\n');
                 return run_error;
             }
+            if (comp_ops->str[1]->string[1] == 'o') { // for infix
+                if (buff[2]->current_size != 0){
+                    buff[0]->current_size--;
+                    buff[0]->string[buff[0]->current_size] = '\0';
+                    str_to_write = buff[2];
+                    if (infix_equation_recog(str_to_write,ops,variables_data,answer,base_assign,base_input,base_output,&k,&status,error_message,str_index,buff[1],buff[3],-1) == NULL){
+                        add_to_string_string(error_message,"infix error\n");
+                        return run_error;
+                    }
+                    return success;
+                }
+                if (!strcmp(buff[0]->string,"BREAKPOINT")){
+                    breakpoint(variables_data);
+                    return end;
+                }
+                str_to_write = buff[0];
+                if ((count < 2) && (str_to_write->string[0] == '!')){
+                    *answer = 0;
+                    error_message->current_size = 1;
+                    return success;
+                }
+                if (infix_equation_recog(str_to_write,ops,variables_data,answer,base_assign,base_input,base_output,&k,&status,error_message,str_index,buff[1],buff[3],-1) == NULL){
+                    add_to_string_string(error_message,"infix error\n");
+                    return run_error;
+                }
+                return good_name;
+            }
             else if ((buff[1]->current_size == 0) && (buff[2]->current_size == 0)) {
                 if (buff[0]->string[0] == '!'){
                     *answer = 0;
                     error_message->current_size = 1;
                     return success;
                 }
+//                if (comp_ops->str[1]->string[1] == 'o') {
+//                    if (infix_equation_recog(str_to_write,ops,variables_data,answer,base_assign,base_input,base_output,&k,&status,error_message,str_index,buff[1],buff[3],-1) == NULL){
+//                        return run_error;
+//                    }
+//                    return good_name;
+//                }
                 if (equation_recog(buff[0],ops,comp_ops,variables_data,answer,base_assign,base_input,base_output,&k,&status,&after_func,-1,error_message,*str_index,i_func,comparator,buff[1]) == NULL){
                     return run_error;
                 }
@@ -1461,18 +1637,9 @@ enum run_errors read_line(operations* ops, compile_options* comp_ops,trie* varia
                 return run_error;
             }
             else {
-//                add_to_string(str_to_write, letter);
                 if (equation_recog(buff[2],ops,comp_ops,variables_data,answer,base_assign,base_input,base_output,&k,&status,&after_func,-1,error_message,*str_index,i_func,comparator,buff[1]) == NULL){
                     return run_error;
                 }
-//                if (k < buff[2]->current_size){
-//                    add_to_string_string(error_message,"Error: too many arguments ");
-//                    add_to_string_string(error_message,"at line ");
-//                    add_number_to_string(error_message,*str_index);
-//                    add_to_string(error_message,'\n');
-//                    return run_error;
-//                    //TODO если передать переменную как параметр через пробел то он это съест потому что пробелы убираются бляяяяя done
-//                }
                 return success;
             }
         }
@@ -1481,6 +1648,9 @@ enum run_errors read_line(operations* ops, compile_options* comp_ops,trie* varia
             add_number_to_string(error_message,*str_index);
             add_to_string(error_message,'\n');
             return run_error;
+        }
+        if (from_letter == 0){
+            count++;
         }
         add_to_string(str_to_write,letter);
         from_letter = 1;

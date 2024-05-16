@@ -1,5 +1,6 @@
-#!BREAKPOINT;
-#output(!BREAKPOINT);
-
-output(25);
-output(add(mult(1,0),output(25)));
+a = 2;
+ffd = 5;
+bb = 55;
+asfasdfsaf = 44;
+!a output;
+BREAKPOINT;
